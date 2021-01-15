@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    // 打包到的目录
+    "outDir": "./dist/",
+    // 是否生成sourceMap（用于浏览器调试）
+    "sourceMap": true,
+    "noImplicitAny": true,
+    "module": "esnext",
+    "experimentalDecorators": true,
+    "moduleResolution": "node",
+    "target": "es5",
+    "allowJs": true,
+    "noUnusedParameters": true,
+    "declaration": true,
+    // 声明文件打包的位置
+    "declarationDir": "./dist/",
+    // 是否生成声明文件map文件（便于调试）
+    "declarationMap": true,
+    "typeRoots": [
+      "./node_modules/@types"
+    ],
+    "lib": [
+      "dom",
+      "es2017"
+    ]
+  }
+}
