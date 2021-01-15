@@ -1,4 +1,4 @@
-# 一款javascript模板引擎
+# WEB PPT editor and presentation
 
 ## Todo Task
 - webpack tsLint
