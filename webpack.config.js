@@ -1,8 +1,10 @@
 const TerserPlugin = require('terser-webpack-plugin');
 const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+
 module.exports = {
-    mode: 'none',
+    mode: 'development',
     entry: {
         'index': './src/index.ts',
     },
@@ -18,8 +20,12 @@ module.exports = {
                 test: /\.ts$/,
                 loader: 'ts-loader',
                 exclude: /nodule_modules/
-            }
-        ]
+            },
+            {
+                test: /\.scss$/,
+                use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader'],
+                exclude: /nodule_modules/
+            }]
     },
     optimization: {
         minimize: true,
@@ -30,7 +36,10 @@ module.exports = {
         ]
     },
     plugins: [
-        new HtmlWebpackPlugin(),
         new CleanWebpackPlugin(),
+        new HtmlWebpackPlugin({template: "./src/index.html"}),
+        new MiniCssExtractPlugin({
+            filename: 'dylan-ppt.css'
+        })
     ]
 };
