@@ -1,4 +1,4 @@
-export class ElementUtil {
+export class DomUtil {
     /**
      * @description 判断是不是HTML元素
      */
@@ -23,11 +23,11 @@ export class ElementUtil {
     /**
      * @description 创建HTML元素
      */
-    static createElement<T>(tag: string, initialStyle: string, initialClass: string): T {
+    static createElement<T extends HTMLElement>(tag: string, initialStyle?: string, initialClass?: string): T {
         const element = document.createElement(tag);
-        ElementUtil.resetStyle(element, initialStyle);
-        ElementUtil.resetClass(element, initialClass);
-        return element as any;
+        DomUtil.resetStyle(element, initialStyle);
+        DomUtil.resetClass(element, initialClass);
+        return element as T;
     }
 
     /**
@@ -45,5 +45,17 @@ export class ElementUtil {
         return window.getComputedStyle(element, null).getPropertyValue(styleKey);
     }
 
+    /**
+     * @description 从尾部增加子节点
+     */
+    static appendTo(parent: HTMLElement, ...children: HTMLElement[]) {
+        children.forEach($child => parent.appendChild($child));
+    }
 
+    /**
+     * 获取元素左上角相对于视口的位置
+     */
+    static getViewOffsetXY(element: HTMLElement): number[] {
+        return [element.getBoundingClientRect().x, element.getBoundingClientRect().y];
+    }
 }

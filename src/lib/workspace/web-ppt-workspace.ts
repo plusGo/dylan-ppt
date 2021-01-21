@@ -1,4 +1,4 @@
-import {ElementUtil} from '../util/element.util';
+import {DomUtil} from '../util/domUtil';
 import {PPTWorkspace} from '../interface/ppt-workspace.interface';
 
 export class WebPPTWorkspace implements PPTWorkspace {
@@ -12,11 +12,11 @@ export class WebPPTWorkspace implements PPTWorkspace {
         } else {
             this.hostElement = hostSelectorOrHostElement;
         }
-        if (!ElementUtil.isElement(this.hostElement)) {
+        if (!DomUtil.isElement(this.hostElement)) {
             throw new Error('hostElement must be html element');
         }
         this.instanceElement = document.createElement('div');
-        ElementUtil.resetStyle(this.instanceElement, WebPPTWorkspace.INITIAL_STYLE);
+        DomUtil.resetStyle(this.instanceElement, WebPPTWorkspace.INITIAL_STYLE);
         this.instanceElement.setAttribute('id', 'workspace');
         this.hostElement.appendChild(this.instanceElement);
     }
