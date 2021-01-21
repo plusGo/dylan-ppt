@@ -2,7 +2,7 @@ import {ElementUtil} from '../util/element.util';
 import {PPTWorkspace} from '../interface/ppt-workspace.interface';
 
 export class WebPPTWorkspace implements PPTWorkspace {
-    private static INITIAL_STYLE = 'display: block; touch-action: none; user-select: none; -webkit-user-drag: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);background:black';
+    private static INITIAL_STYLE = 'position:relative;display: block; touch-action: none; user-select: none; -webkit-user-drag: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);background:black';
     hostElement: HTMLElement;
     instanceElement: HTMLDivElement;
 

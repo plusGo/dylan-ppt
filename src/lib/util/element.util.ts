@@ -29,4 +29,21 @@ export class ElementUtil {
         ElementUtil.resetClass(element, initialClass);
         return element as any;
     }
+
+    /**
+     * @description 获取HTML元素的style json
+     */
+    static getStyleMap(element: HTMLElement): { [key: string]: any } {
+        return window.getComputedStyle(element);
+    }
+
+
+    /**
+     * @description 获取HTML元素的某一个style值
+     */
+    static getStyleValue(element: HTMLElement, styleKey: string): string {
+        return window.getComputedStyle(element, null).getPropertyValue(styleKey);
+    }
+
+
 }
