@@ -6,12 +6,23 @@ import {DomUtil} from "../util/domUtil";
 import {StyleUtil} from "../util/style.util";
 import {CssUtil} from "../util/css.util";
 import {COLOR_MAP} from "../constant/color.constant";
+import {Subject} from '../obervable/observable';
+
+export interface AreaSelectorResult {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+}
+
 
 export interface LastSelectorSnapshot {
     div: HTMLDivElement;
     xOrigin: number;
     yOrigin: number;
+    result?: AreaSelectorResult;
 }
+
 
 export class AreaSelector {
     private static INITIAL_STYLE_MAP: { [key: string]: any } = {
@@ -25,6 +36,8 @@ export class AreaSelector {
     private lastSnapshot: LastSelectorSnapshot;
     private hostOffsetX: number;
     private hostOffsetY: number;
+
+    onDrawComplete$: Subject<AreaSelectorResult, any> = new Subject<AreaSelectorResult, any>();
 
 
     constructor(private hostElement: HTMLElement) {
@@ -47,7 +60,9 @@ export class AreaSelector {
     }
 
     destroy(): void {
-        this.listenDocumentMouseUpFunc();
+        this.lastSnapshot = null;
+        this.cachedDivs.forEach($div => DomUtil.removeChildren(this.hostElement, $div));
+        this.cachedDivs = [];
 
         this.hostElement.removeEventListener('mousedown', this.listenHostMouseDownFunc);
         this.hostElement.removeEventListener('mousemove', this.listenHostMouseMoveFunc);
@@ -55,10 +70,14 @@ export class AreaSelector {
     }
 
     listenDocumentMouseUpFunc = () => {
+        if(this.lastSnapshot){
+            this.onDrawComplete$.next(this.lastSnapshot.result);
+        }
+
         this.lastSnapshot = null;
         this.cachedDivs.forEach($div => DomUtil.removeChildren(this.hostElement, $div));
         this.cachedDivs = [];
-    }
+    };
 
     listenHostMouseMoveFunc = (event: MouseEvent): void => {
         if (!this.lastSnapshot) {
@@ -71,8 +90,16 @@ export class AreaSelector {
         const topValue = yDest > this.lastSnapshot.yOrigin ? this.lastSnapshot.yOrigin : yDest;
         const width = Math.abs(xDest - this.lastSnapshot.xOrigin);
         const height = Math.abs(yDest - this.lastSnapshot.yOrigin);
+
+        this.lastSnapshot.result = {
+            x: leftValue,
+            y: topValue,
+            width: width,
+            height: height
+        };
+
         DomUtil.resetStyle(this.lastSnapshot.div, this.buildStyle(leftValue, topValue, width, height))
-    }
+    };
 
     listenHostMouseDownFunc = (event: MouseEvent): void => {
         if (this.lastSnapshot) {
@@ -92,7 +119,7 @@ export class AreaSelector {
             yOrigin: yOrigin
         }
 
-    }
+    };
 
     buildStyle(left: number, top: number, width: number, height: number): string {
         return StyleUtil.transformMapToStr({

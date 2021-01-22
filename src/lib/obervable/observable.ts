@@ -21,7 +21,7 @@ export class Observable<T extends any, S extends any> {
             next: nextFunc,
             error: errorFunc,
             complete: completeFunc
-        })
+        });
         return {
             unsubscribe() {
                 this.resetObserverFunc()
@@ -36,4 +36,43 @@ export class Observable<T extends any, S extends any> {
             complete: () => null
         })
     }
+}
+
+export class Subject<T extends any, S extends any> extends Observable<T, S> {
+    private observers: Observer<T, S>[] = [];
+
+
+    constructor() {
+        super(null);
+    }
+
+    subscribe(nextFunc: (value?: T) => void,
+              errorFunc: (error?: S) => void = () => null,
+              completeFunc: () => void = () => null): Subscription {
+        const newObserver = {
+            next: nextFunc,
+            error: errorFunc,
+            complete: completeFunc
+        };
+        this.observers.push(newObserver);
+        return {
+            unsubscribe: () => {
+                this.observers = this.observers.filter($observer => $observer !== newObserver);
+            }
+        }
+    }
+
+    next(value: T): void {
+        this.observers.forEach($observer => $observer.next(value));
+    }
+
+    error(error: S): void {
+        this.observers.forEach($observer => $observer.error(error));
+    }
+
+    complete(): void {
+        this.observers.forEach($observer => $observer.complete());
+        this.observers = [];
+    }
+
 }
