@@ -3,44 +3,104 @@
  * @description 需要绑定到宿主dom，且dom区域的position是relative
  */
 import {DomUtil} from "../util/domUtil";
+import {StyleUtil} from "../util/style.util";
+import {CssUtil} from "../util/css.util";
+import {COLOR_MAP} from "../constant/color.constant";
+
+export interface LastSelectorSnapshot {
+    div: HTMLDivElement;
+    xOrigin: number;
+    yOrigin: number;
+}
 
 export class AreaSelector {
-    private static INITIAL_STYLE = `display: block; position: absolute; background: rgba(61, 71, 87, 0.15); z-index: 1; left: 176.969px; top: -174.078px; x: 176.969px; y: -174.078px; width: 155px; height: 75px;`;
+    private static INITIAL_STYLE_MAP: { [key: string]: any } = {
+        display: 'block',
+        position: 'absolute',
+        'background-color': COLOR_MAP.AREA_SELECTOR_BG_COLOR,
+        'z-index': 1
+    };
+
+    private cachedDivs: HTMLDivElement[] = [];
+    private lastSnapshot: LastSelectorSnapshot;
+    private hostOffsetX: number;
+    private hostOffsetY: number;
+
 
     constructor(private hostElement: HTMLElement) {
         if (DomUtil.isElement(hostElement) && DomUtil.getStyleValue(hostElement, 'position') !== 'relative') {
             throw new Error('选区实例的宿主必须是相对定位')
         }
-        this.hostElement.onmousedown = (event) => {
-            event = window.event as any || event; // 兼容ie的事件传递
-            const [offsetX, offsetY] = DomUtil.getViewOffsetXY(this.hostElement);
+        this.init();
 
-            const xOrigin = event.clientX - offsetX;
-            const yOrigin = event.clientY - offsetY;
-
-            const divElement = DomUtil.createElement('div');
-            DomUtil.appendTo(this.hostElement, divElement);
-            this.hostElement.onmousemove = ($event) => {
-                $event = window.event as any || $event; // 兼容ie的事件传递
-                console.log(`x:${$event.clientX};y:${$event.clientY}`);
-                console.log(`offsetLeft:${offsetX};offsetTop:${offsetY}`);
-                const xDest = $event.clientX - offsetX;
-                const yDest = $event.clientY - offsetY;
-
-                const leftValue = (xDest > xOrigin ? xOrigin : xDest) + 'px';
-                const rightValue = (yDest > yOrigin ? yOrigin : yDest) + 'px';
-                const width = Math.abs(xDest - xOrigin) + "px";
-                const height = Math.abs(yDest - yOrigin) + "px";
-                DomUtil.resetStyle(divElement, this.buildStyle(leftValue, rightValue, width, height))
-            }
-        };
-        document.onmouseup = () => {
-            // this.hostElement.onmousedown = null;
-            this.hostElement.onmousemove = null;
-        }
     }
 
-    buildStyle(left: string, top: string, width: string, height: string): string {
-        return `display: block;position: absolute; background: rgba(61, 71, 87, 0.15); z-index: 1; left:${left}; top: ${top}; x: ${left}; y: ${top}; width: ${width}; height: ${height};`
+    init(): void {
+        const [offsetX, offsetY] = DomUtil.getViewOffsetXY(this.hostElement);
+        this.hostOffsetX = offsetX;
+        this.hostOffsetY = offsetY;
+
+        this.hostElement.addEventListener('mousedown', this.listenHostMouseDownFunc);
+        this.hostElement.addEventListener('mousemove', this.listenHostMouseMoveFunc);
+        document.addEventListener('mouseup', this.listenDocumentMouseUpFunc);
+
+    }
+
+    destroy(): void {
+        this.listenDocumentMouseUpFunc();
+
+        this.hostElement.removeEventListener('mousedown', this.listenHostMouseDownFunc);
+        this.hostElement.removeEventListener('mousemove', this.listenHostMouseMoveFunc);
+        document.removeEventListener('mouseup', this.listenDocumentMouseUpFunc);
+    }
+
+    listenDocumentMouseUpFunc = () => {
+        this.lastSnapshot = null;
+        this.cachedDivs.forEach($div => DomUtil.removeChildren(this.hostElement, $div));
+        this.cachedDivs = [];
+    }
+
+    listenHostMouseMoveFunc = (event: MouseEvent): void => {
+        if (!this.lastSnapshot) {
+            return;
+        }
+        const xDest = event.clientX - this.hostOffsetX;
+        const yDest = event.clientY - this.hostOffsetY;
+
+        const leftValue = xDest > this.lastSnapshot.xOrigin ? this.lastSnapshot.xOrigin : xDest;
+        const topValue = yDest > this.lastSnapshot.yOrigin ? this.lastSnapshot.yOrigin : yDest;
+        const width = Math.abs(xDest - this.lastSnapshot.xOrigin);
+        const height = Math.abs(yDest - this.lastSnapshot.yOrigin);
+        DomUtil.resetStyle(this.lastSnapshot.div, this.buildStyle(leftValue, topValue, width, height))
+    }
+
+    listenHostMouseDownFunc = (event: MouseEvent): void => {
+        if (this.lastSnapshot) {
+            return;
+        }
+
+        const xOrigin = event.clientX - this.hostOffsetX;
+        const yOrigin = event.clientY - this.hostOffsetY;
+
+        const divElement = DomUtil.createElement<HTMLDivElement>('div');
+        DomUtil.appendTo(this.hostElement, divElement);
+
+        this.cachedDivs.push(divElement);
+        this.lastSnapshot = {
+            div: divElement,
+            xOrigin: xOrigin,
+            yOrigin: yOrigin
+        }
+
+    }
+
+    buildStyle(left: number, top: number, width: number, height: number): string {
+        return StyleUtil.transformMapToStr({
+            ...AreaSelector.INITIAL_STYLE_MAP,
+            left: CssUtil.coercePixelValue(left),
+            top: CssUtil.coercePixelValue(top),
+            width: CssUtil.coercePixelValue(width),
+            height: CssUtil.coercePixelValue(height),
+        })
     }
 }

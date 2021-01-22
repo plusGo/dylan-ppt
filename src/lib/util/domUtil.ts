@@ -53,9 +53,16 @@ export class DomUtil {
     }
 
     /**
-     * 获取元素左上角相对于视口的位置
+     * @description 获取元素左上角相对于视口的位置
      */
     static getViewOffsetXY(element: HTMLElement): number[] {
         return [element.getBoundingClientRect().x, element.getBoundingClientRect().y];
+    }
+
+    /**
+     * @description 删除子节点
+     */
+    static removeChildren(parent: HTMLElement, ...children: HTMLElement[]): void {
+        children.forEach($child => parent.removeChild($child));
     }
 }
