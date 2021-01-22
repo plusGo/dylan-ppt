@@ -12,7 +12,6 @@ export interface Subscription {
 export class Observable<T extends any, S extends any> {
 
     constructor(private readonly observerFunc: (observer: Observer<T, S>) => void) {
-        this.resetObserverFunc();
     }
 
     subscribe(nextFunc: (value?: T) => void,
