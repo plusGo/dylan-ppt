@@ -23,10 +23,24 @@ export class DomUtil {
     /**
      * @description 创建HTML元素
      */
-    static createElement<T extends HTMLElement>(tag: string, initialStyle?: string, initialClass?: string): T {
+    static createElement<T extends HTMLElement>(tag: string, initialStyle?: string, initialClass?: string,
+                                                initialAttrs?: { [key: string]: any }): T {
         const element = document.createElement(tag);
-        DomUtil.resetStyle(element, initialStyle);
-        DomUtil.resetClass(element, initialClass);
+
+        if (initialAttrs) {
+            Object.keys(initialAttrs).forEach($key => {
+                element.setAttribute($key, initialAttrs[$key]);
+            })
+        }
+
+        if (initialClass) {
+            DomUtil.resetClass(element, initialClass);
+        }
+
+        if (initialStyle) {
+            DomUtil.resetStyle(element, initialStyle);
+        }
+
         return element as T;
     }
 
@@ -48,7 +62,7 @@ export class DomUtil {
     /**
      * @description 从尾部增加子节点
      */
-    static appendTo(parent: HTMLElement, ...children: HTMLElement[]) {
+    static appendTo(parent: HTMLElement, ...children: Element[]) {
         children.forEach($child => parent.appendChild($child));
     }
 

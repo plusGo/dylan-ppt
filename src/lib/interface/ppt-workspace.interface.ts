@@ -1,3 +1,3 @@
-export interface PPTWorkspace {
+export interface Workspace {
 
 }

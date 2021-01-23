@@ -1,6 +1,6 @@
-import {WebPPTWorkspace} from '../../workspace/web-ppt-workspace';
+import {EditWorkspace} from '../../ppt/workspace/edit-workspace';
 
 export interface WebPPTPlayerOption {
-    workspace: WebPPTWorkspace;
+    workspace: EditWorkspace;
     data: any;
 }

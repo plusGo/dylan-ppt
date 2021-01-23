@@ -1,0 +1,10 @@
+#workspace svg {
+  position: absolute;
+  flex-shrink: 0;
+  box-shadow: 0 2px 16px rgba(0,0,0,.2);
+}
+
+#workspace svg:not(#artboard) {
+  background: #fff;
+  pointer-events: none;
+}

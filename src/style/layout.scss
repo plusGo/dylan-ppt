@@ -1,0 +1,62 @@
+.dylan-ppt {
+  &-root{
+    visibility: visible!important;
+    flex-grow: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &-header {
+    flex: 0 0 auto;
+    height: 45px;
+    background: #f2f4f7;
+    border-bottom: 1px solid #e2e6ed;
+    white-space: nowrap;
+    z-index: 10;
+  }
+
+  &-content {
+    position: relative;
+    height: calc(100vh - 45px);
+  }
+
+  &-side-left {
+    width: 200px;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    background: #f2f4f7;
+    border-right: 1px solid #e2e6ed;
+    z-index: 1;
+  }
+
+  &-edit-content {
+    width: calc(100% - 200px);
+    height: 100%;
+    position: absolute;
+    left: 200px;
+    top: 0;
+    background: #f2f4f7;
+    display: flex;
+    flex-direction: column;
+
+    &-toolbar {
+      height: 46px;
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid #e2e6ed;
+    }
+  }
+
+  &-workspace-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: auto;
+    height: 100%;
+    margin: 24px;
+    position: relative;
+  }
+}

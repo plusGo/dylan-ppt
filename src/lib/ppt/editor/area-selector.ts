@@ -2,11 +2,11 @@
  * 实现鼠标选区
  * @description 需要绑定到宿主dom，且dom区域的position是relative
  */
-import {DomUtil} from "../util/domUtil";
-import {StyleUtil} from "../util/style.util";
-import {CssUtil} from "../util/css.util";
-import {COLOR_MAP} from "../constant/color.constant";
-import {Subject} from '../obervable/observable';
+import {DomUtil} from "../../util/domUtil";
+import {StyleUtil} from "../../util/style.util";
+import {CssUtil} from "../../util/css.util";
+import {COLOR_MAP} from "../../constant/color.constant";
+import {Subject} from '../../obervable/observable';
 
 export interface AreaSelectorResult {
     x: number;
@@ -40,8 +40,8 @@ export class AreaSelector {
     onDrawComplete$: Subject<AreaSelectorResult, any> = new Subject<AreaSelectorResult, any>();
 
 
-    constructor(private hostElement: HTMLElement) {
-        if (DomUtil.isElement(hostElement) && DomUtil.getStyleValue(hostElement, 'position') !== 'relative') {
+    constructor(private listenHostElement: HTMLElement, private parentElement: HTMLElement) {
+        if (!DomUtil.isElement(listenHostElement)) {
             throw new Error('选区实例的宿主必须是相对定位')
         }
         this.init();
@@ -49,33 +49,33 @@ export class AreaSelector {
     }
 
     init(): void {
-        const [offsetX, offsetY] = DomUtil.getViewOffsetXY(this.hostElement);
+        const [offsetX, offsetY] = DomUtil.getViewOffsetXY(this.parentElement);
         this.hostOffsetX = offsetX;
         this.hostOffsetY = offsetY;
 
-        this.hostElement.addEventListener('mousedown', this.listenHostMouseDownFunc);
-        this.hostElement.addEventListener('mousemove', this.listenHostMouseMoveFunc);
+        this.listenHostElement.addEventListener('mousedown', this.listenHostMouseDownFunc);
+        this.listenHostElement.addEventListener('mousemove', this.listenHostMouseMoveFunc);
         document.addEventListener('mouseup', this.listenDocumentMouseUpFunc);
 
     }
 
     destroy(): void {
         this.lastSnapshot = null;
-        this.cachedDivs.forEach($div => DomUtil.removeChildren(this.hostElement, $div));
+        this.cachedDivs.forEach($div => DomUtil.removeChildren(this.listenHostElement, $div));
         this.cachedDivs = [];
 
-        this.hostElement.removeEventListener('mousedown', this.listenHostMouseDownFunc);
-        this.hostElement.removeEventListener('mousemove', this.listenHostMouseMoveFunc);
+        this.listenHostElement.removeEventListener('mousedown', this.listenHostMouseDownFunc);
+        this.listenHostElement.removeEventListener('mousemove', this.listenHostMouseMoveFunc);
         document.removeEventListener('mouseup', this.listenDocumentMouseUpFunc);
     }
 
     listenDocumentMouseUpFunc = () => {
-        if(this.lastSnapshot){
+        if (this.lastSnapshot) {
             this.onDrawComplete$.next(this.lastSnapshot.result);
         }
 
         this.lastSnapshot = null;
-        this.cachedDivs.forEach($div => DomUtil.removeChildren(this.hostElement, $div));
+        this.cachedDivs.forEach($div => DomUtil.removeChildren(this.parentElement, $div));
         this.cachedDivs = [];
     };
 
@@ -110,7 +110,7 @@ export class AreaSelector {
         const yOrigin = event.clientY - this.hostOffsetY;
 
         const divElement = DomUtil.createElement<HTMLDivElement>('div');
-        DomUtil.appendTo(this.hostElement, divElement);
+        DomUtil.appendTo(this.parentElement, divElement);
 
         this.cachedDivs.push(divElement);
         this.lastSnapshot = {

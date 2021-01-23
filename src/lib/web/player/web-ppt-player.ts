@@ -17,7 +17,7 @@ export class WebPPTPlayer {
     private initPlayerRootContainer(): void {
         let initialStyle = 'position: relative; width: 1280px; height: 720px; overflow: hidden; zoom: 0.8586; flex-shrink: 0;';
         this.playerRootContainerElement = DomUtil.createElement<HTMLDivElement>('div', initialStyle, 'player-root-container');
-        this.webPPTPlayerOption.workspace.instanceElement.appendChild(this.playerRootContainerElement);
+        this.webPPTPlayerOption.workspace.workSpaceElement.appendChild(this.playerRootContainerElement);
         this.initPlayerRoot();
     }
     private initPlayerRoot(): void {
