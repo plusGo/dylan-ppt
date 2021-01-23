@@ -43,4 +43,37 @@
     border-radius: 5px;
     border: 2px solid #fff;
   }
+
+
+  .cr1:hover, .shape-adjust-hover1:hover {
+    cursor: nw-resize
+  }
+
+  .cr2:hover, .shape-adjust-hover2:hover {
+    cursor: w-resize
+  }
+
+  .cr3:hover, .shape-adjust-hover3:hover {
+    cursor: sw-resize
+  }
+
+  .cr4:hover, .shape-adjust-hover4:hover {
+    cursor: n-resize
+  }
+
+  .cr5:hover, .shape-adjust-hover5:hover {
+    cursor: s-resize
+  }
+
+  .cr6:hover, .shape-adjust-hover6:hover {
+    cursor: ne-resize
+  }
+
+  .cr7:hover, .shape-adjust-hover7:hover {
+    cursor: e-resize
+  }
+
+  .cr8:hover, .shape-adjust-hover8:hover {
+    cursor: se-resize
+  }
 }
