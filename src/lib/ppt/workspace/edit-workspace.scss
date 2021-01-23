@@ -20,6 +20,10 @@
     align-items: center;
     justify-content: center;
 
+    &.cursor-crosshair{
+      cursor: crosshair;
+    }
+
     .slide-editor {
       flex-shrink: 0;
       z-index: 1;

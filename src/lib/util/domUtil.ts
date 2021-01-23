@@ -21,6 +21,13 @@ export class DomUtil {
     }
 
     /**
+     * @description 向元素的新增class属性
+     */
+    static addClass(element: HTMLElement, ...classNames: string[]): void {
+        element.classList.add(...classNames);
+    }
+
+    /**
      * @description 创建HTML元素
      */
     static createElement<T extends HTMLElement>(tag: string, initialStyle?: string, initialClass?: string,

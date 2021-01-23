@@ -1,9 +1,9 @@
 import {DomUtil} from '../../util/domUtil';
-import {AreaSelector} from './area-selector';
+import {AreaSelector} from './area-selector/area-selector';
 
 export class SlideEditor {
-    private slideElement: HTMLDivElement;
-    private areaSelector: AreaSelector;
+     slideElement: HTMLDivElement;
+     areaSelector: AreaSelector;
 
     constructor(private hostElement: HTMLElement) {
         if (!DomUtil.isElement(hostElement)) {

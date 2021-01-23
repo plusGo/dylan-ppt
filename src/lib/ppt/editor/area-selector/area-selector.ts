@@ -2,11 +2,11 @@
  * 实现鼠标选区
  * @description 需要绑定到宿主dom，且dom区域的position是relative
  */
-import {DomUtil} from "../../util/domUtil";
-import {StyleUtil} from "../../util/style.util";
-import {CssUtil} from "../../util/css.util";
-import {COLOR_MAP} from "../../constant/color.constant";
-import {Subject} from '../../obervable/observable';
+import {DomUtil} from "../../../util/domUtil";
+import {StyleUtil} from "../../../util/style.util";
+import {CssUtil} from "../../../util/css.util";
+import {COLOR_MAP} from "../../../constant/color.constant";
+import {Subject} from '../../../obervable/observable';
 
 export interface AreaSelectorResult {
     x: number;
@@ -38,7 +38,7 @@ export class AreaSelector {
     private hostOffsetY: number;
 
     onDrawComplete$: Subject<AreaSelectorResult, any> = new Subject<AreaSelectorResult, any>();
-
+    onDrawStart$: Subject<HTMLDivElement, void> = new Subject<HTMLDivElement, void>();
 
     constructor(private listenHostElement: HTMLElement, private parentElement: HTMLElement) {
         if (!DomUtil.isElement(listenHostElement)) {
@@ -109,7 +109,7 @@ export class AreaSelector {
         const xOrigin = event.clientX - this.hostOffsetX;
         const yOrigin = event.clientY - this.hostOffsetY;
 
-        const divElement = DomUtil.createElement<HTMLDivElement>('div');
+        const divElement = DomUtil.createElement<HTMLDivElement>('div', '', 'area-selector');
         DomUtil.appendTo(this.parentElement, divElement);
 
         this.cachedDivs.push(divElement);
@@ -117,7 +117,9 @@ export class AreaSelector {
             div: divElement,
             xOrigin: xOrigin,
             yOrigin: yOrigin
-        }
+        };
+
+        this.onDrawStart$.next(divElement);
 
     };
 
