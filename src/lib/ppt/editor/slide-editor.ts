@@ -37,7 +37,8 @@ export class SlideEditor {
                 width: result.width,
                 height: result.height,
                 transform: 'rotate(0deg)'
-            }).mount(this.slideElement);
+            }).mount(this.slideElement)
+                .active();
 
             this.shapeBoxes.push(shapeBox);
 

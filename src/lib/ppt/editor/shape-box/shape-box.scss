@@ -1,3 +1,14 @@
+@keyframes blink {
+  0% {
+    opacity: 0
+  }
+  50% {
+    opacity: 1
+  }
+  to {
+    opacity: 0
+  }
+}
 #uil-content {
   .shape-box {
     .selected-rects {
@@ -5,6 +16,9 @@
 
       &.only-cursor {
         opacity: 1;
+      }
+      .caret {
+        animation: blink 1s infinite;
       }
     }
 
