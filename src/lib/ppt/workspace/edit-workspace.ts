@@ -42,13 +42,8 @@ export class EditWorkspace implements Workspace {
      * 初始化单页slide编辑器
      */
     private initSlideEditor() {
-        this.slideEditor = new SlideEditor(this.uilContentElement);
-        this.slideEditor.areaSelector.onDrawStart$.subscribe(() => {
-            this.uilContentElement.classList.add('cursor-crosshair');
-        });
-        this.slideEditor.areaSelector.onDrawComplete$.subscribe(() => {
-            this.uilContentElement.classList.remove('cursor-crosshair');
-        })
+        this.slideEditor = new SlideEditor(this);
+
     }
 
 }
