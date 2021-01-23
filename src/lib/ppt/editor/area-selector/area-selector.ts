@@ -9,20 +9,18 @@ import {COLOR_MAP} from "../../../constant/color.constant";
 import {Subject} from '../../../obervable/observable';
 
 export interface AreaSelectorResult {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
+    x: number; // 左上角的横坐标
+    y: number;// 左上角的纵坐标
+    width: number; // 选区的宽度
+    height: number; // 选区的高度
 }
 
-
-export interface LastSelectorSnapshot {
+interface LastSelectorSnapshot {
     div: HTMLDivElement;
     xOrigin: number;
     yOrigin: number;
     result?: AreaSelectorResult;
 }
-
 
 export class AreaSelector {
     private static INITIAL_STYLE_MAP: { [key: string]: any } = {
@@ -41,7 +39,7 @@ export class AreaSelector {
     onDrawStart$: Subject<HTMLDivElement, void> = new Subject<HTMLDivElement, void>();
 
     constructor(private listenHostElement: HTMLElement, private parentElement: HTMLElement) {
-        if (!DomUtil.isElement(listenHostElement)) {
+        if (!DomUtil.isElement(this.listenHostElement) || !DomUtil.isElement(this.parentElement)) {
             throw new Error('选区实例的宿主必须是相对定位')
         }
         this.init();
