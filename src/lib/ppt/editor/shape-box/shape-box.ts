@@ -16,6 +16,7 @@ export class ShapeBox {
     private selectorBoxElement: HTMLDivElement;
     private borderBox: HTMLDivElement;
     private circleBoxElement: HTMLDivElement;
+    private selectedRects: HTMLDivElement;
 
     constructor() {
         this.init();
@@ -23,15 +24,19 @@ export class ShapeBox {
 
     private init() {
         this.shapeBoxElement = DomUtil.createElement('div', 'position:absolute;', 'shape-box', {'id': 'shape-ui-box'})
+        this.initSelectorBox();
+        this.initSelectedRects();
+        DomUtil.appendTo(this.selectorBoxElement, this.borderBox, this.selectedRects);
 
+    }
+
+    private initSelectorBox() {
         this.selectorBoxElement = DomUtil.createElement('div', '', 'selectorBox', {'data-name': 'selectorBox'})
         DomUtil.appendTo(this.shapeBoxElement, this.selectorBoxElement);
 
         this.initCircleBox();
 
-        this.borderBox = DomUtil.createElement('div', '', 'borderBox')
-        DomUtil.appendTo(this.selectorBoxElement, this.borderBox);
-
+        this.borderBox = DomUtil.createElement('div', '', 'borderBox');
     }
 
     update(option: ShapeBoxUpdateOption): ShapeBox {
@@ -81,5 +86,9 @@ export class ShapeBox {
 
         DomUtil.appendTo(this.circleBoxElement, lineOne, lineTwo, lineThree);
         DomUtil.appendTo(this.selectorBoxElement, this.circleBoxElement);
+    }
+
+    private initSelectedRects() {
+        this.selectedRects = DomUtil.createElement('div', '', 'selected-rects only-cursor');
     }
 }

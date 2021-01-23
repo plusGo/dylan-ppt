@@ -70,7 +70,10 @@ export class DomUtil {
      * @description 从尾部增加子节点
      */
     static appendTo(parent: HTMLElement, ...children: Element[]) {
-        children.forEach($child => parent.appendChild($child));
+        const fragment = document.createDocumentFragment();
+        children.forEach($child => fragment.appendChild($child));
+
+        parent.appendChild(fragment);
     }
 
     /**
