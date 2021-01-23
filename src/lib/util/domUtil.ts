@@ -52,10 +52,12 @@ export class DomUtil {
     }
 
     /**
-     * @description 获取HTML元素的style json
+     * @description 增加style属性，若之前已存在属性，则直接进行覆盖
      */
-    static getStyleMap(element: HTMLElement): { [key: string]: any } {
-        return window.getComputedStyle(element);
+    static addStyleMap(element: HTMLElement, styleMap: { [key: string]: any }): void {
+        Object.keys(styleMap).forEach($key => {
+            element.style[$key as any] = styleMap[$key];
+        });
     }
 
 
@@ -88,5 +90,18 @@ export class DomUtil {
      */
     static removeChildren(parent: HTMLElement, ...children: HTMLElement[]): void {
         children.forEach($child => parent.removeChild($child));
+    }
+
+    /**
+     * @description 根据字符串模板创建documentFragment
+     */
+    static createFragmentByTemplate(template: string): DocumentFragment {
+        const templeElement = DomUtil.createElement('div');
+        templeElement.innerHTML = template;
+        const documentFragment = document.createDocumentFragment();
+        for (let i = 0; i < templeElement.children.length; i++) {
+            documentFragment.append(templeElement.children[i]);
+        }
+        return documentFragment;
     }
 }

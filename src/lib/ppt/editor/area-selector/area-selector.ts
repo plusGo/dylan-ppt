@@ -7,6 +7,7 @@ import {StyleUtil} from "../../../util/style.util";
 import {CssUtil} from "../../../util/css.util";
 import {COLOR_MAP} from "../../../constant/color.constant";
 import {Subject} from '../../../obervable/observable';
+import {BaseComponent} from '../../base/base-component';
 
 export interface AreaSelectorResult {
     x: number; // 左上角的横坐标
@@ -22,7 +23,7 @@ interface LastSelectorSnapshot {
     result?: AreaSelectorResult;
 }
 
-export class AreaSelector {
+export class AreaSelector extends BaseComponent {
     private static INITIAL_STYLE_MAP: { [key: string]: any } = {
         display: 'block',
         position: 'absolute',
@@ -39,11 +40,11 @@ export class AreaSelector {
     onDrawStart$: Subject<HTMLDivElement, void> = new Subject<HTMLDivElement, void>();
 
     constructor(private listenHostElement: HTMLElement, private parentElement: HTMLElement) {
+        super();
         if (!DomUtil.isElement(this.listenHostElement) || !DomUtil.isElement(this.parentElement)) {
             throw new Error('选区实例的宿主必须是相对定位')
         }
         this.init();
-
     }
 
     init(): void {
@@ -65,6 +66,9 @@ export class AreaSelector {
         this.listenHostElement.removeEventListener('mousedown', this.listenHostMouseDownFunc);
         this.listenHostElement.removeEventListener('mousemove', this.listenHostMouseMoveFunc);
         document.removeEventListener('mouseup', this.listenDocumentMouseUpFunc);
+
+        this.onDrawComplete$ = null;
+        this.onDrawStart$ = null;
     }
 
     listenDocumentMouseUpFunc = () => {

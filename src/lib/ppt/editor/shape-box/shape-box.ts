@@ -2,6 +2,7 @@ import {DomUtil} from '../../../util/domUtil';
 import {StyleUtil} from '../../../util/style.util';
 import {CssUtil} from '../../../util/css.util';
 import './shape-box.scss';
+import {BaseComponent} from '../../base/base-component';
 
 export interface ShapeBoxUpdateOption {
     left: number;
@@ -11,19 +12,21 @@ export interface ShapeBoxUpdateOption {
     transform: string;
 }
 
-export class ShapeBox {
+export class ShapeBox extends BaseComponent {
+    static caretElement: HTMLDivElement;
+
     private shapeBoxElement: HTMLDivElement;
     private selectorBoxElement: HTMLDivElement;
     private borderBox: HTMLDivElement;
     private circleBoxElement: HTMLDivElement;
     private selectedRectsElement: HTMLDivElement;
-    private caretElement: HTMLDivElement;
 
     constructor() {
+        super();
         this.init();
     }
 
-    private init() {
+    init() {
         this.shapeBoxElement = DomUtil.createElement('div', 'position:absolute;', 'shape-box', {'id': 'shape-ui-box'})
         this.initSelectorBox();
         this.initSelectedRects();
@@ -63,17 +66,19 @@ export class ShapeBox {
     }
 
     active(): ShapeBox {
-        const caretStyleMap = {
-            position: 'absolute',
-            left: '4.8px',
-            top: '4.593px',
-            width: '1px',
-            height: '13px',
-            background: 'rgba(0,0,0)',
-        };
+        if (!ShapeBox.caretElement) {
+            const caretStyleMap = {
+                position: 'absolute',
+                left: '4.8px',
+                top: '4.593px',
+                width: '1px',
+                height: '13px',
+                background: 'rgba(0,0,0)',
+            };
 
-        this.caretElement = DomUtil.createElement('div', StyleUtil.transformMapToStr(caretStyleMap), 'caret');
-        DomUtil.appendTo(this.selectedRectsElement, this.caretElement);
+            ShapeBox.caretElement = DomUtil.createElement('div', StyleUtil.transformMapToStr(caretStyleMap), 'caret');
+        }
+        DomUtil.appendTo(this.selectedRectsElement, ShapeBox.caretElement);
         return this;
     }
 
@@ -108,5 +113,9 @@ export class ShapeBox {
         this.selectedRectsElement = DomUtil.createElement('div', '', 'selected-rects only-cursor');
         DomUtil.appendTo(this.shapeBoxElement, this.selectedRectsElement)
 
+    }
+
+    destroy(): void {
+        this.unmount(this.shapeBoxElement.parentElement);
     }
 }

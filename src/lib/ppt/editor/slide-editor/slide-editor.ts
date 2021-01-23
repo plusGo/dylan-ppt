@@ -1,7 +1,7 @@
-import {DomUtil} from '../../util/domUtil';
-import {AreaSelector} from './area-selector/area-selector';
-import {EditWorkspace} from '../workspace/edit-workspace';
-import {ShapeBox} from './shape-box/shape-box';
+import {DomUtil} from '../../../util/domUtil';
+import {AreaSelector} from '../area-selector/area-selector';
+import {EditWorkspace} from '../../workspace/edit-workspace';
+import {ShapeBox} from '../shape-box/shape-box';
 
 export class SlideEditor {
     slideElement: HTMLDivElement;
@@ -18,16 +18,24 @@ export class SlideEditor {
         DomUtil.appendTo(this.hostElement, this.slideElement);
 
         this.initAreaSelector();
+
+
     }
 
     private initAreaSelector() {
         this.areaSelector = new AreaSelector(this.hostElement, this.slideElement);
 
         this.areaSelector.onDrawStart$.subscribe(() => {
-            this.hostElement.classList.add('cursor-crosshair');
+            this.workspace.eventStream.next({
+                eventType: 'cursorChange',
+                data: 'crosshair'
+            });
         });
         this.areaSelector.onDrawComplete$.subscribe((result) => {
-            this.hostElement.classList.remove('cursor-crosshair');
+            this.workspace.eventStream.next({
+                eventType: 'cursorChange',
+                data: 'default'
+            });
 
             const shapeBox = new ShapeBox();
 
@@ -35,7 +43,7 @@ export class SlideEditor {
                 left: result.x,
                 top: result.y,
                 width: result.width,
-                height: result.height,
+                height: 20.533,
                 transform: 'rotate(0deg)'
             }).mount(this.slideElement)
                 .active();

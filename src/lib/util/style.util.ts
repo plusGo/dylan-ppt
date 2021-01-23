@@ -8,4 +8,18 @@ export class StyleUtil {
             return $value + `${$key}:${map[$key]};`
         }, '')
     }
+
+    /**
+     * @description 将StyleString转换为StyleMap
+     * @example "color:red;font-size:12px;" => {"color":"red","font-size":"12px"}
+     */
+    static transformStrToMap(str: string): { [key: string]: string } {
+        const result = {} as any;
+
+        str.split(';').forEach($keyValue => {
+            result[$keyValue.split(':')[0]] = $keyValue.split(':')[1];
+        });
+
+        return result;
+    }
 }
