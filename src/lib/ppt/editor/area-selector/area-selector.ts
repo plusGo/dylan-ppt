@@ -70,6 +70,7 @@ export class AreaSelector {
     }
 
     listenDocumentMouseUpFunc = () => {
+        debugger
         if (this.lastSnapshot && this.lastSnapshot.result) {
             this.onDrawComplete$.next(this.lastSnapshot.result);
         }

@@ -56,9 +56,7 @@ export class CircleBox extends BaseComponent1 implements AfterViewInit, OnDestro
         this.workspace.uilContentElement.addEventListener('mouseup', this.onMouseupFunc);
     }
 
-    onMouseupFunc = (event: MouseEvent): void => {
-        event.preventDefault();
-        event.stopPropagation();
+    onMouseupFunc = (): void => {
 
         this.lastSnapshot = null;
         this.zoomAction$.next({
@@ -67,8 +65,6 @@ export class CircleBox extends BaseComponent1 implements AfterViewInit, OnDestro
     };
 
     onMousemoveFunc = (event: MouseEvent): void => {
-        event.preventDefault();
-        event.stopPropagation();
         if (!this.lastSnapshot) {
             return;
         }
