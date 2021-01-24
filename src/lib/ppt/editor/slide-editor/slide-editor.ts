@@ -55,6 +55,9 @@ export class SlideEditor extends BaseComponent implements ComponentDidMount {
                 eventType: 'cursorChange',
                 data: 'default'
             });
+            if (!result) {
+                return;
+            }
 
             const initShapeBoxOption = {
                 left: result.x,
@@ -64,9 +67,7 @@ export class SlideEditor extends BaseComponent implements ComponentDidMount {
                 transform: 'rotate(0deg)'
             };
             const shapeBox = new ShapeBox(this.workspace, initShapeBoxOption);
-
             this.shapeBoxes.push(shapeBox);
-
         })
     }
 

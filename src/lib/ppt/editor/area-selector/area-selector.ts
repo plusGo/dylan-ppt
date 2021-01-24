@@ -37,7 +37,7 @@ export class AreaSelector {
     private hostOffsetX: number;
     private hostOffsetY: number;
 
-    onDrawComplete$: Subject<AreaSelectorResult, any> = new Subject<AreaSelectorResult, any>();
+    onDrawComplete$: Subject<AreaSelectorResult | null, any> = new Subject<AreaSelectorResult | null, any>();
     onDrawStart$: Subject<HTMLDivElement, void> = new Subject<HTMLDivElement, void>();
     uilContentElement: HTMLDivElement;
     slideElement: HTMLDivElement;
@@ -85,6 +85,8 @@ export class AreaSelector {
     listenDocumentMouseUpFunc = () => {
         if (this.lastSnapshot && this.lastSnapshot.result) {
             this.onDrawComplete$.next(this.lastSnapshot.result);
+        } else {
+            this.onDrawComplete$.next(null);
         }
 
         this.lastSnapshot = null;
