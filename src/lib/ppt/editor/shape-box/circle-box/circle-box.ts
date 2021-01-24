@@ -1,7 +1,8 @@
-import {AfterViewInit, BaseComponent1, OnDestroy} from '../../../base/base-component';
+import {ComponentDidMount, BaseComponent, ComponentWillUnmount} from '../../../base/base-component';
 import {Subject} from '../../../../obervable/observable';
 import {EditWorkspace} from '../../../workspace/edit-workspace';
 import {DIRECTION_MAP} from './zoom-direaction';
+import './circle-box.scss';
 
 const template = `
 <div class="circleBox">
@@ -37,7 +38,7 @@ export interface ZoomAction {
     offsetTop?: number;
 }
 
-export class CircleBox extends BaseComponent1 implements AfterViewInit, OnDestroy {
+export class CircleBox extends BaseComponent implements ComponentDidMount, ComponentWillUnmount {
     private static CIRCLE_ATTR_NAME: string = 'data-name';
     circleBoxElement: HTMLDivElement;
     lastSnapshot: StartSnapshot;
@@ -49,7 +50,7 @@ export class CircleBox extends BaseComponent1 implements AfterViewInit, OnDestro
     }
 
 
-    afterViewInit(): void {
+    componentDidMount(): void {
         this.circleBoxElement = this.query('.circleBox');
         this.circleBoxElement.addEventListener('mousedown', this.onMousedownFunc);
         this.workspace.uilContentElement.addEventListener('mousemove', this.onMousemoveFunc);
@@ -98,7 +99,7 @@ export class CircleBox extends BaseComponent1 implements AfterViewInit, OnDestro
     };
 
 
-    onDestroy(): void {
+    componentWillUnmount(): void {
         this.circleBoxElement.removeEventListener('mousedown', this.onMousedownFunc);
         this.workspace.uilContentElement.removeEventListener('mousemove', this.onMousemoveFunc);
         this.workspace.uilContentElement.removeEventListener('mouseup', this.onMouseupFunc);

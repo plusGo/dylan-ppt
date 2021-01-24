@@ -1,11 +1,11 @@
 import {DomUtil} from '../../../util/domUtil';
-import {StyleUtil} from '../../../util/style.util';
 import {CssUtil} from '../../../util/css.util';
 import './shape-box.scss';
-import {BaseComponent} from '../../base/base-component';
 import {CircleBox} from './circle-box/circle-box';
 import {EditWorkspace} from '../../workspace/edit-workspace';
 import {NumberUtil} from '../../../util/number.util';
+import {BaseComponent, ComponentDidMount, ComponentWillMount} from '../../base/base-component';
+import {SelectedRects} from './selected-rects/selected-rects';
 
 export interface ShapeBoxUpdateOption {
     left: number;
@@ -15,73 +15,45 @@ export interface ShapeBoxUpdateOption {
     transform: string;
 }
 
-export class ShapeBox extends BaseComponent {
-    static caretElement: HTMLDivElement;
+const template = `
+<div id="shape-ui-box" class="shape-box" style="position: absolute; ">
+    <div data-name="selectorBox" class="selectorBox">
+        <div class="borderBox"></div>
+    </div>
+</div>
+`;
 
-    private shapeBoxElement: HTMLDivElement;
-    private selectorBoxElement: HTMLDivElement;
-    private borderBox: HTMLDivElement;
-    private selectedRectsElement: HTMLDivElement;
-    private circleBoxComponent: CircleBox;
+export class ShapeBox extends BaseComponent implements ComponentDidMount, ComponentWillMount {
 
-    constructor(private workspace: EditWorkspace) {
-        super();
-        this.init();
+    shapeBoxElement: HTMLDivElement;
+    selectorBoxElement: HTMLDivElement;
+    circleBoxComponent: CircleBox;
+
+    selectedRects: SelectedRects;
+
+    constructor(private workspace: EditWorkspace, private initBoxOption: ShapeBoxUpdateOption) {
+        super(template, workspace.slideEditor.slideElement);
     }
 
-    init() {
-        this.shapeBoxElement = DomUtil.createElement('div', 'position:absolute;', 'shape-box', {'id': 'shape-ui-box'})
-        this.initSelectorBox();
-        this.initSelectedRects();
-
+    componentWillMount(): void {
+        this.shapeBoxElement = this.query('#shape-ui-box');
+        this.selectorBoxElement = this.query('.selectorBox');
     }
 
-    private initSelectorBox() {
-        this.selectorBoxElement = DomUtil.createElement('div', '', 'selectorBox', {'data-name': 'selectorBox'})
-        DomUtil.appendTo(this.shapeBoxElement, this.selectorBoxElement);
-
+    componentDidMount(): void {
+        this.update(this.initBoxOption);
         this.initCircleBox();
-
-        this.borderBox = DomUtil.createElement('div', '', 'borderBox');
-        DomUtil.appendTo(this.selectorBoxElement, this.borderBox)
+        this.selectedRects = new SelectedRects(this);
     }
 
     update(option: ShapeBoxUpdateOption): ShapeBox {
-        DomUtil.resetStyle(this.shapeBoxElement, StyleUtil.transformMapToStr({
-            position: 'absolute',
+        DomUtil.addStyleMap(this.shapeBoxElement, {
             left: CssUtil.coercePixelValue(option.left),
             top: CssUtil.coercePixelValue(option.top),
             width: CssUtil.coercePixelValue(option.width),
             height: CssUtil.coercePixelValue(option.height),
             transform: option.transform
-        }));
-        return this;
-    }
-
-    mount(host: HTMLElement): ShapeBox {
-        DomUtil.appendTo(host, this.shapeBoxElement);
-        return this;
-    }
-
-    unmount(host: HTMLElement): ShapeBox {
-        DomUtil.removeChildren(host, this.shapeBoxElement);
-        return this;
-    }
-
-    active(): ShapeBox {
-        if (!ShapeBox.caretElement) {
-            const caretStyleMap = {
-                position: 'absolute',
-                left: '4.8px',
-                top: '4.593px',
-                width: '1px',
-                height: '13px',
-                background: 'rgba(0,0,0)',
-            };
-
-            ShapeBox.caretElement = DomUtil.createElement('div', StyleUtil.transformMapToStr(caretStyleMap), 'caret');
-        }
-        DomUtil.appendTo(this.selectedRectsElement, ShapeBox.caretElement);
+        });
         return this;
     }
 
@@ -126,13 +98,4 @@ export class ShapeBox extends BaseComponent {
 
     }
 
-    private initSelectedRects() {
-        this.selectedRectsElement = DomUtil.createElement('div', '', 'selected-rects only-cursor');
-        DomUtil.appendTo(this.shapeBoxElement, this.selectedRectsElement)
-
-    }
-
-    destroy(): void {
-        this.unmount(this.shapeBoxElement.parentElement);
-    }
 }

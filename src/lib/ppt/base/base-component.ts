@@ -3,62 +3,51 @@
  */
 import {DomUtil} from '../../util/domUtil';
 
-export abstract class BaseComponent {
 
-    /**
-     * @description 生命周期~组件初始化
-     */
-    abstract init(): void;
-
-    /**
-     * @description 生命周期~组件销毁
-     */
-    abstract destroy(): void;
-
-    // abstract afterViewInit(): void;
+/**
+ * @description 生命周期函数 -> 挂载前，
+ */
+export interface ComponentWillMount {
+    componentWillMount(): void;
 }
 
 /**
- * @description 生命周期函数 -> 初始化前
+ * @description 生命周期函数 -> 挂载后，
  */
-export interface OnInit {
-    onInit(): void;
-}
-
-/**
- * @description 生命周期函数 -> 初始化后，
- */
-export interface AfterViewInit {
-    afterViewInit(): void;
+export interface ComponentDidMount {
+    componentDidMount(): void;
 }
 
 /**
  * @description 生命周期函数 -> 摧毁前，
  */
-export interface OnDestroy {
-    onDestroy(): void;
+export interface ComponentWillUnmount {
+    componentWillUnmount(): void;
 }
 
 /**
  * @description 所有组件的抽象类
  */
-export abstract class BaseComponent1 {
+export abstract class BaseComponent {
+    /**
+     * 用于包裹模板的fragment，只存在于mount前
+     */
     componentFragment: DocumentFragment;
 
-    constructor(protected template: string, protected host: HTMLElement) {
-        if ((this as any).onInit) {
-            (this as any).onInit();
-        }
+    constructor(protected template: string, protected host?: HTMLElement) {
         this.init();
     }
 
+    /**
+     * @description 查询组件作用域的dom节点，必须在组件mount后使用
+     */
     query<E extends Element = Element>(selector: string): E {
-        return this.host.querySelector<E>(selector);
+        return this.componentFragment.querySelector<E>(selector) || this.host.querySelector<E>(selector);
     }
 
     queryAll<E extends Element = Element>(selector: string): E[] {
         const result: E[] = [];
-        const nodeListOf = this.host.querySelectorAll<E>(selector);
+        const nodeListOf = this.componentFragment.querySelectorAll<E>(selector) || this.host.querySelectorAll<E>(selector);
         for (let i = 0; i < nodeListOf.length; i++) {
             result.push(nodeListOf[i]);
         }
@@ -67,22 +56,29 @@ export abstract class BaseComponent1 {
 
 
     init(): void {
-        this.componentFragment = DomUtil.createFragmentByTemplate(this.template);
         new Promise((resolve) => resolve(null)).then(() => {
-            this.mount();
+            this.componentFragment = DomUtil.createFragmentByTemplate(this.template);
+
+            if (this.host) {
+                if ((this as any).componentWillMount) {
+                    (this as any).componentWillMount();
+                }
+
+                this.mount();
+            }
         })
     };
 
     mount(): void {
         this.host.append(this.componentFragment);
-        if ((this as any).afterViewInit) {
-            (this as any).afterViewInit();
+        if ((this as any).componentDidMount) {
+            (this as any).componentDidMount();
         }
     }
 
-    destroy(): void {
-        if ((this as any).onDestroy) {
-            (this as any).onDestroy();
+    unmount(): void {
+        if ((this as any).componentWillUnmount) {
+            (this as any).componentWillUnmount();
         }
         this.host.removeChild(this.componentFragment);
     }

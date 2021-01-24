@@ -1,4 +1,4 @@
-import {AfterViewInit, BaseComponent1} from '../base/base-component';
+import {ComponentDidMount, BaseComponent} from '../base/base-component';
 import {EditWorkspace} from '../workspace/edit-workspace';
 
 const template = `
@@ -7,14 +7,14 @@ const template = `
 </svg>
  `;
 
-export class SvgRender extends BaseComponent1 implements AfterViewInit {
+export class SvgRender extends BaseComponent implements ComponentDidMount {
     svgElement: SVGElement;
 
     constructor(private workspace: EditWorkspace) {
         super(template, workspace.uilContentElement);
     }
 
-    afterViewInit(): void {
+    componentDidMount(): void {
         this.svgElement = this.query<SVGElement>('svg');
         this.changeUIsIZE();
         this.workspace.eventStream.subscribe(event => {

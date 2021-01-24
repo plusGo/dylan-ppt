@@ -1,4 +1,4 @@
-import {BaseComponent1} from '../../base/base-component';
+import {BaseComponent} from '../../base/base-component';
 import {EditWorkspace} from '../../workspace/edit-workspace';
 
 const template = `
@@ -8,10 +8,10 @@ const template = `
     </form>
     `;
 
-export class HiddenInput extends BaseComponent1 {
-    formElement: HTMLFormElement = this.query<HTMLFormElement>('form');
-    hiddenInputElement: HTMLInputElement = this.query<HTMLInputElement>('#hiddenInput');
-    disabledInput: HTMLInputElement = this.query<HTMLInputElement>('input[type="hidden"]');
+export class HiddenInput extends BaseComponent {
+    // formElement: HTMLFormElement = this.query<HTMLFormElement>('form');
+    // hiddenInputElement: HTMLInputElement = this.query<HTMLInputElement>('#hiddenInput');
+    // disabledInput: HTMLInputElement = this.query<HTMLInputElement>('input[type="hidden"]');
 
     constructor(workspace: EditWorkspace) {
         super(template, workspace.uilContentElement);

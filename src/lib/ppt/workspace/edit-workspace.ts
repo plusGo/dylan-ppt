@@ -6,7 +6,7 @@ import {SlideEditor} from '../editor/slide-editor/slide-editor';
 import {Subject} from '../../obervable/observable';
 import {BaseEvent} from './type';
 import {HiddenInput} from '../editor/hiden-input/hidden-input';
-import {AfterViewInit, BaseComponent1} from '../base/base-component';
+import {ComponentDidMount, BaseComponent} from '../base/base-component';
 
 const template = `
 <div id="workspace" class="edit" style="display: block;">
@@ -18,7 +18,7 @@ const template = `
 /**
  * @description PPT编辑时的工作区
  */
-export class EditWorkspace extends BaseComponent1 implements Workspace, AfterViewInit {
+export class EditWorkspace extends BaseComponent implements Workspace, ComponentDidMount {
     workSpaceElement: HTMLDivElement; // 工作区域节点
     uilContentElement: HTMLDivElement; // UI区
     svgRender: SvgRender; // 编辑时的渲染层
@@ -53,7 +53,7 @@ export class EditWorkspace extends BaseComponent1 implements Workspace, AfterVie
     }
 
 
-    afterViewInit(): void {
+    componentDidMount(): void {
         this.workSpaceElement = this.query('#workspace');
         this.uilContentElement = this.query('#uil-content');
 

@@ -2,7 +2,7 @@ import {DomUtil} from '../../../util/domUtil';
 import {AreaSelector} from '../area-selector/area-selector';
 import {EditWorkspace} from '../../workspace/edit-workspace';
 import {ShapeBox} from '../shape-box/shape-box';
-import {AfterViewInit, BaseComponent1} from '../../base/base-component';
+import {ComponentDidMount, BaseComponent} from '../../base/base-component';
 import {CssUtil} from '../../../util/css.util';
 
 const template = `
@@ -10,7 +10,7 @@ const template = `
 </div>
 `;
 
-export class SlideEditor extends BaseComponent1 implements AfterViewInit {
+export class SlideEditor extends BaseComponent implements ComponentDidMount {
     slideElement: HTMLDivElement;
     areaSelector: AreaSelector;
     shapeBoxes: ShapeBox[] = [];
@@ -20,10 +20,7 @@ export class SlideEditor extends BaseComponent1 implements AfterViewInit {
         super(template, workspace.uilContentElement);
     }
 
-    afterViewInit(): void {
-        if (!DomUtil.isElement(this.workspace.uilContentElement)) {
-            throw new Error('宿主必须是HTML Element');
-        }
+    componentDidMount(): void {
         this.slideElement = this.query('.slide-editor');
         this.changeUIsIZE();
         this.workspace.eventStream.subscribe(event => {
@@ -31,9 +28,7 @@ export class SlideEditor extends BaseComponent1 implements AfterViewInit {
                 this.changeUIsIZE();
             }
         });
-
         this.initAreaSelector();
-
     }
 
     private changeUIsIZE() {
@@ -61,16 +56,14 @@ export class SlideEditor extends BaseComponent1 implements AfterViewInit {
                 data: 'default'
             });
 
-            const shapeBox = new ShapeBox(this.workspace);
-
-            shapeBox.update({
+            const initShapeBoxOption = {
                 left: result.x,
                 top: result.y,
                 width: result.width,
                 height: 20.533,
                 transform: 'rotate(0deg)'
-            }).mount(this.slideElement)
-                .active();
+            };
+            const shapeBox = new ShapeBox(this.workspace, initShapeBoxOption);
 
             this.shapeBoxes.push(shapeBox);
 
