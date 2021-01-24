@@ -22,12 +22,20 @@ export class EditWorkspace extends BaseComponent1 implements Workspace, AfterVie
     workSpaceElement: HTMLDivElement; // 工作区域节点
     uilContentElement: HTMLDivElement; // UI区
     svgRender: SvgRender; // 编辑时的渲染层
-    private slideEditor: SlideEditor; // 编辑层
+    slideEditor: SlideEditor; // 编辑层
 
     /**
      * 事件总线
      */
     eventStream: Subject<BaseEvent, void> = new Subject<BaseEvent, void>();
+
+    /**
+     * 工作区静态配置
+     */
+    workspaceConfig = {
+        widthHeightRatio: 16 / 9
+    };
+
     hiddenInput: HiddenInput;
 
     constructor(private hostElement: HTMLElement) {

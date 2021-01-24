@@ -7,6 +7,7 @@ import {StyleUtil} from "../../../util/style.util";
 import {CssUtil} from "../../../util/css.util";
 import {COLOR_MAP} from "../../../constant/color.constant";
 import {Subject} from '../../../obervable/observable';
+import {EditWorkspace} from '../../workspace/edit-workspace';
 
 export interface AreaSelectorResult {
     x: number; // 左上角的横坐标
@@ -21,6 +22,7 @@ interface LastSelectorSnapshot {
     yOrigin: number;
     result?: AreaSelectorResult;
 }
+
 
 export class AreaSelector {
     private static INITIAL_STYLE_MAP: { [key: string]: any } = {
@@ -37,32 +39,43 @@ export class AreaSelector {
 
     onDrawComplete$: Subject<AreaSelectorResult, any> = new Subject<AreaSelectorResult, any>();
     onDrawStart$: Subject<HTMLDivElement, void> = new Subject<HTMLDivElement, void>();
+    uilContentElement: HTMLDivElement;
+    slideElement: HTMLDivElement;
 
-    constructor(private listenHostElement: HTMLElement, private parentElement: HTMLElement) {
-        if (!DomUtil.isElement(this.listenHostElement) || !DomUtil.isElement(this.parentElement)) {
+    constructor(private editWorkspace: EditWorkspace) {
+        this.uilContentElement = this.editWorkspace.uilContentElement;
+        this.slideElement = this.editWorkspace.slideEditor.slideElement;
+        if (!DomUtil.isElement(this.uilContentElement) || !DomUtil.isElement(this.slideElement)) {
             throw new Error('选区实例的宿主必须是相对定位')
         }
         this.init();
     }
 
     init(): void {
-        const [offsetX, offsetY] = DomUtil.getViewOffsetXY(this.parentElement);
+        this.editWorkspace.eventStream.subscribe(event => {
+            if (event.eventType === 'uiResize') {
+                const [offsetX, offsetY] = DomUtil.getViewOffsetXY(this.slideElement);
+                this.hostOffsetX = offsetX;
+                this.hostOffsetY = offsetY;
+            }
+        });
+        const [offsetX, offsetY] = DomUtil.getViewOffsetXY(this.slideElement);
         this.hostOffsetX = offsetX;
         this.hostOffsetY = offsetY;
 
-        this.listenHostElement.addEventListener('mousedown', this.listenHostMouseDownFunc);
-        this.listenHostElement.addEventListener('mousemove', this.listenHostMouseMoveFunc);
+        this.uilContentElement.addEventListener('mousedown', this.listenHostMouseDownFunc);
+        this.uilContentElement.addEventListener('mousemove', this.listenHostMouseMoveFunc);
         document.addEventListener('mouseup', this.listenDocumentMouseUpFunc);
 
     }
 
     destroy(): void {
         this.lastSnapshot = null;
-        this.cachedDivs.forEach($div => DomUtil.removeChildren(this.listenHostElement, $div));
+        this.cachedDivs.forEach($div => DomUtil.removeChildren(this.uilContentElement, $div));
         this.cachedDivs = [];
 
-        this.listenHostElement.removeEventListener('mousedown', this.listenHostMouseDownFunc);
-        this.listenHostElement.removeEventListener('mousemove', this.listenHostMouseMoveFunc);
+        this.uilContentElement.removeEventListener('mousedown', this.listenHostMouseDownFunc);
+        this.uilContentElement.removeEventListener('mousemove', this.listenHostMouseMoveFunc);
         document.removeEventListener('mouseup', this.listenDocumentMouseUpFunc);
 
         this.onDrawComplete$ = null;
@@ -75,7 +88,7 @@ export class AreaSelector {
         }
 
         this.lastSnapshot = null;
-        this.cachedDivs.forEach($div => DomUtil.removeChildren(this.parentElement, $div));
+        this.cachedDivs.forEach($div => DomUtil.removeChildren(this.slideElement, $div));
         this.cachedDivs = [];
     };
 
@@ -110,7 +123,7 @@ export class AreaSelector {
         const yOrigin = event.clientY - this.hostOffsetY;
 
         const divElement = DomUtil.createElement<HTMLDivElement>('div', '', 'area-selector');
-        DomUtil.appendTo(this.parentElement, divElement);
+        DomUtil.appendTo(this.slideElement, divElement);
 
         this.cachedDivs.push(divElement);
         this.lastSnapshot = {

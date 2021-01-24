@@ -5,7 +5,7 @@ const template = `
  <svg version="1.1" xmlns="http://www.w3.org/2000/svg"   overflow="visible" viewBox="0 0 1280 720">
     <defs></defs>
 </svg>
- `
+ `;
 
 export class SvgRender extends BaseComponent1 implements AfterViewInit {
     svgElement: SVGElement;
@@ -25,6 +25,9 @@ export class SvgRender extends BaseComponent1 implements AfterViewInit {
     }
 
     private changeUIsIZE() {
-        this.svgElement.setAttribute('width', `${this.workspace.uilContentElement.clientWidth - 40}`)
+        const width = this.workspace.uilContentElement.clientWidth - 40;
+        const height = width / this.workspace.workspaceConfig.widthHeightRatio;
+        this.svgElement.setAttribute('width', `${width}`)
+        this.svgElement.setAttribute('height', `${height}`)
     }
 }

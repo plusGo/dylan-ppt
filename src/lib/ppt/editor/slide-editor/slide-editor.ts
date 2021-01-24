@@ -2,30 +2,52 @@ import {DomUtil} from '../../../util/domUtil';
 import {AreaSelector} from '../area-selector/area-selector';
 import {EditWorkspace} from '../../workspace/edit-workspace';
 import {ShapeBox} from '../shape-box/shape-box';
+import {AfterViewInit, BaseComponent1} from '../../base/base-component';
+import {CssUtil} from '../../../util/css.util';
 
-export class SlideEditor {
+const template = `
+<div class="slide-editor" >
+</div>
+`;
+
+export class SlideEditor extends BaseComponent1 implements AfterViewInit {
     slideElement: HTMLDivElement;
     areaSelector: AreaSelector;
-    hostElement: HTMLDivElement;
     shapeBoxes: ShapeBox[] = [];
 
 
-
     constructor(private workspace: EditWorkspace) {
-        this.hostElement = this.workspace.uilContentElement;
-        if (!DomUtil.isElement(this.hostElement)) {
+        super(template, workspace.uilContentElement);
+    }
+
+    afterViewInit(): void {
+        if (!DomUtil.isElement(this.workspace.uilContentElement)) {
             throw new Error('宿主必须是HTML Element');
         }
-        this.slideElement = DomUtil.createElement('div', 'width:640px;height:360px;', 'slide-editor');
-        DomUtil.appendTo(this.hostElement, this.slideElement);
+        this.slideElement = this.query('.slide-editor');
+        this.changeUIsIZE();
+        this.workspace.eventStream.subscribe(event => {
+            if (event.eventType === 'uiResize') {
+                this.changeUIsIZE();
+            }
+        });
 
         this.initAreaSelector();
 
-
     }
 
+    private changeUIsIZE() {
+        const width = this.workspace.uilContentElement.clientWidth - 40;
+        const height = width / this.workspace.workspaceConfig.widthHeightRatio;
+        DomUtil.addStyleMap(this.slideElement, {
+            width: CssUtil.coercePixelValue(width),
+            height: CssUtil.coercePixelValue(height)
+        });
+    }
+
+
     private initAreaSelector() {
-        this.areaSelector = new AreaSelector(this.hostElement, this.slideElement);
+        this.areaSelector = new AreaSelector(this.workspace);
 
         this.areaSelector.onDrawStart$.subscribe(() => {
             this.workspace.eventStream.next({
@@ -54,4 +76,5 @@ export class SlideEditor {
 
         })
     }
+
 }
