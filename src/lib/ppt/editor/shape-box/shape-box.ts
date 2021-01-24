@@ -3,6 +3,9 @@ import {StyleUtil} from '../../../util/style.util';
 import {CssUtil} from '../../../util/css.util';
 import './shape-box.scss';
 import {BaseComponent} from '../../base/base-component';
+import {CircleBox} from './circle-box/circle-box';
+import {EditWorkspace} from '../../workspace/edit-workspace';
+import {NumberUtil} from '../../../util/number.util';
 
 export interface ShapeBoxUpdateOption {
     left: number;
@@ -18,10 +21,10 @@ export class ShapeBox extends BaseComponent {
     private shapeBoxElement: HTMLDivElement;
     private selectorBoxElement: HTMLDivElement;
     private borderBox: HTMLDivElement;
-    private circleBoxElement: HTMLDivElement;
     private selectedRectsElement: HTMLDivElement;
+    private circleBoxComponent: CircleBox;
 
-    constructor() {
+    constructor(private workspace: EditWorkspace) {
         super();
         this.init();
     }
@@ -83,30 +86,44 @@ export class ShapeBox extends BaseComponent {
     }
 
     private initCircleBox() {
-        this.circleBoxElement = DomUtil.createElement('div', '', 'circleBox');
+        this.circleBoxComponent = new CircleBox(this.selectorBoxElement, this.workspace);
 
-        const lineOne = DomUtil.createElement('div', '', 'circleLine');
-        DomUtil.appendTo(lineOne,
-            DomUtil.createElement('div', '', 'circle cr1', {'data-name': 'cr1'}),
-            DomUtil.createElement('div', '', 'circle cr2', {'data-name': 'cr2'}),
-            DomUtil.createElement('div', '', 'circle cr3', {'data-name': 'cr3'}),
-        );
+        let widthNum = 0;
+        let heightNum = 0;
+        let left = 0;
+        let top = 0;
+        this.circleBoxComponent.zoomAction$.subscribe((zoomAction) => {
+            if (zoomAction.type === 'start') {
+                widthNum = NumberUtil.coerceNumberProperty(DomUtil.getStyleValue(this.shapeBoxElement, 'width'));
+                heightNum = NumberUtil.coerceNumberProperty(DomUtil.getStyleValue(this.shapeBoxElement, 'height'));
+                left = NumberUtil.coerceNumberProperty(DomUtil.getStyleValue(this.shapeBoxElement, 'left'));
+                top = NumberUtil.coerceNumberProperty(DomUtil.getStyleValue(this.shapeBoxElement, 'top'));
+            }
+            if (zoomAction.type === 'zooming' && widthNum && heightNum && left && top) {
+                const newWidth = Math.max(widthNum + zoomAction.offsetWidth, 13.2);
+                const newHeight = Math.max(heightNum + zoomAction.offsetHeight, 13.2);
 
-        const lineTwo = DomUtil.createElement('div', '', 'circleLine');
-        DomUtil.appendTo(lineTwo,
-            DomUtil.createElement('div', '', 'circle cr4', {'data-name': 'cr4'}),
-            DomUtil.createElement('div', '', 'circle cr5', {'data-name': 'cr5'}),
-        );
+                let styleMap = {
+                    'width': CssUtil.coercePixelValue(newWidth),
+                    'height': CssUtil.coercePixelValue(newHeight),
+                } as any;
+                if (newWidth !== 13.2) {
+                    styleMap.left = CssUtil.coercePixelValue(left + zoomAction.offsetLeft)
+                }
+                if (newHeight !== 13.2) {
+                    styleMap.top = CssUtil.coercePixelValue(top + zoomAction.offsetTop)
+                }
 
-        const lineThree = DomUtil.createElement('div', '', 'circleLine');
-        DomUtil.appendTo(lineThree,
-            DomUtil.createElement('div', '', 'circle cr6', {'data-name': 'cr6'}),
-            DomUtil.createElement('div', '', 'circle cr7', {'data-name': 'cr7'}),
-            DomUtil.createElement('div', '', 'circle cr8', {'data-name': 'cr8'}),
-        );
+                DomUtil.addStyleMap(this.shapeBoxElement, styleMap);
+            }
+            if (zoomAction.type === 'end') {
+                widthNum = 0;
+                heightNum = 0;
+                left = 0;
+                top = 0;
+            }
+        })
 
-        DomUtil.appendTo(this.circleBoxElement, lineOne, lineTwo, lineThree);
-        DomUtil.appendTo(this.selectorBoxElement, this.circleBoxElement);
     }
 
     private initSelectedRects() {

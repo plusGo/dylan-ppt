@@ -42,39 +42,48 @@ export interface OnDestroy {
 /**
  * @description 所有组件的抽象类
  */
-export abstract class BaseComponent1 implements OnInit, AfterViewInit, OnDestroy {
+export abstract class BaseComponent1 {
     componentFragment: DocumentFragment;
 
     constructor(protected template: string, protected host: HTMLElement) {
-        this.onInit();
+        if ((this as any).onInit) {
+            (this as any).onInit();
+        }
         this.init();
     }
 
-    query<T extends HTMLElement>(selector: string): T {
-        return this.host.querySelector(selector) as T;
+    query<E extends Element = Element>(selector: string): E {
+        return this.host.querySelector<E>(selector);
     }
 
-    onInit(): void {
+    queryAll<E extends Element = Element>(selector: string): E[] {
+        const result: E[] = [];
+        const nodeListOf = this.host.querySelectorAll<E>(selector);
+        for (let i = 0; i < nodeListOf.length; i++) {
+            result.push(nodeListOf[i]);
+        }
+        return result;
     }
 
-    afterViewInit(): void {
-    }
-
-    onDestroy(): void {
-    }
 
     init(): void {
         this.componentFragment = DomUtil.createFragmentByTemplate(this.template);
-        this.mount();
+        new Promise((resolve) => resolve(null)).then(() => {
+            this.mount();
+        })
     };
 
     mount(): void {
         this.host.append(this.componentFragment);
-        this.afterViewInit();
+        if ((this as any).afterViewInit) {
+            (this as any).afterViewInit();
+        }
     }
 
     destroy(): void {
-        this.onDestroy();
+        if ((this as any).onDestroy) {
+            (this as any).onDestroy();
+        }
         this.host.removeChild(this.componentFragment);
     }
 }

@@ -37,7 +37,7 @@ export class SlideEditor {
                 data: 'default'
             });
 
-            const shapeBox = new ShapeBox();
+            const shapeBox = new ShapeBox(this.workspace);
 
             shapeBox.update({
                 left: result.x,
