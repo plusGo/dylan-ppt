@@ -9,6 +9,8 @@ export class SlideEditor {
     hostElement: HTMLDivElement;
     shapeBoxes: ShapeBox[] = [];
 
+
+
     constructor(private workspace: EditWorkspace) {
         this.hostElement = this.workspace.uilContentElement;
         if (!DomUtil.isElement(this.hostElement)) {

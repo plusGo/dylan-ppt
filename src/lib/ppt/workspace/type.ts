@@ -1,4 +1,5 @@
 export class BaseEvent {
-    eventType: 'cursorChange';
+    eventType: 'cursorChange' | 'uiResize';
     data: any;
 }
+

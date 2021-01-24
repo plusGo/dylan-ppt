@@ -1,24 +1,30 @@
-import {SvgUtil} from '../../util/svg-util';
-import {DomUtil} from '../../util/domUtil';
+import {AfterViewInit, BaseComponent1} from '../base/base-component';
+import {EditWorkspace} from '../workspace/edit-workspace';
 
-export class SvgRender {
+const template = `
+ <svg version="1.1" xmlns="http://www.w3.org/2000/svg"   overflow="visible" viewBox="0 0 1280 720">
+    <defs></defs>
+</svg>
+ `
+
+export class SvgRender extends BaseComponent1 implements AfterViewInit {
     svgElement: SVGElement;
 
-    constructor(hostElement: HTMLElement) {
-        this.svgElement = SvgUtil.create('svg', {
-            version: '1.1',
-            xmlns: 'http://www.w3.org/2000/svg',
-            'xmlns:xlink': 'http://www.w3.org/1999/xlink',
-            width: '640px',
-            height: '360px',
-            overflow: 'visible',
-            viewBox: '0 0 1280 720',
-        });
-        DomUtil.appendTo(hostElement, this.svgElement);
-        //
-        // document.addEventListener('resize', () => {
-        //     const width = DomUtil.getStyleValue(hostElement, 'width');
-        //     console.log(width);
-        // })
+    constructor(private workspace: EditWorkspace) {
+        super(template, workspace.uilContentElement);
+    }
+
+    afterViewInit(): void {
+        this.svgElement = this.query<SVGElement>('svg');
+        this.changeUIsIZE();
+        this.workspace.eventStream.subscribe(event => {
+            if (event.eventType === 'uiResize') {
+                this.changeUIsIZE();
+            }
+        })
+    }
+
+    private changeUIsIZE() {
+        this.svgElement.setAttribute('width', `${this.workspace.uilContentElement.clientWidth - 40}`)
     }
 }

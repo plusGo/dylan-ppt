@@ -4,31 +4,38 @@ import {SvgRender} from '../render/svg-render';
 import './edit-workspace.scss';
 import {SlideEditor} from '../editor/slide-editor/slide-editor';
 import {Subject} from '../../obervable/observable';
-import {StyleUtil} from '../../util/style.util';
 import {BaseEvent} from './type';
 import {HiddenInput} from '../editor/hiden-input/hidden-input';
+import {AfterViewInit, BaseComponent1} from '../base/base-component';
+
+const template = `
+<div id="workspace" class="edit" style="display: block;">
+    <div id="uil-content">
+    </div>
+</div>
+`;
 
 /**
  * @description PPT编辑时的工作区
  */
-export class EditWorkspace implements Workspace {
+export class EditWorkspace extends BaseComponent1 implements Workspace, AfterViewInit {
     workSpaceElement: HTMLDivElement; // 工作区域节点
     uilContentElement: HTMLDivElement; // UI区
     svgRender: SvgRender; // 编辑时的渲染层
     private slideEditor: SlideEditor; // 编辑层
 
+    /**
+     * 事件总线
+     */
     eventStream: Subject<BaseEvent, void> = new Subject<BaseEvent, void>();
-     hiddenInput: HiddenInput;
+    hiddenInput: HiddenInput;
 
     constructor(private hostElement: HTMLElement) {
+        super(template, hostElement);
         if (!DomUtil.isElement(this.hostElement)) {
             throw new Error('hostElement must be html element');
         }
-        this.initWorkSpaceElement();
-        this.initUilContentElement();
-        this.initHiddenInput();
-        this.initSvg();
-        this.initSlideEditor();
+
 
         this.eventStream.subscribe((event) => {
             if (event.eventType === 'cursorChange') {
@@ -37,20 +44,22 @@ export class EditWorkspace implements Workspace {
         })
     }
 
+
+    afterViewInit(): void {
+        this.workSpaceElement = this.query('#workspace');
+        this.uilContentElement = this.query('#uil-content');
+
+        this.initHiddenInput();
+        this.initSvg();
+        this.initSlideEditor();
+
+        this.listenDocResize();
+    }
+
     private initSvg() {
-        this.svgRender = new SvgRender(this.uilContentElement);
+        this.svgRender = new SvgRender(this);
     }
 
-    private initUilContentElement() {
-        this.uilContentElement = DomUtil.createElement('div', '', '', {id: 'uil-content'});
-        DomUtil.appendTo(this.workSpaceElement, this.uilContentElement);
-    }
-
-    private initWorkSpaceElement() {
-        this.workSpaceElement = DomUtil.createElement('div',
-            'display:block', 'edit', {id: 'workspace'});
-        DomUtil.appendTo(this.hostElement, this.workSpaceElement);
-    }
 
     /**
      * 初始化单页slide编辑器
@@ -62,5 +71,14 @@ export class EditWorkspace implements Workspace {
 
     private initHiddenInput() {
         this.hiddenInput = new HiddenInput(this);
+    }
+
+    private listenDocResize() {
+        window.onresize = () => {
+            this.eventStream.next({
+                eventType: 'uiResize',
+                data: this.uilContentElement.clientWidth
+            });
+        }
     }
 }
