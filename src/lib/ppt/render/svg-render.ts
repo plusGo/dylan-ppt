@@ -17,7 +17,7 @@ export class SvgRender extends BaseComponent implements ComponentDidMount {
     componentDidMount(): void {
         this.svgElement = this.query<SVGElement>('svg');
         this.changeUIsIZE();
-        this.workspace.eventStream.subscribe(event => {
+        this.workspace.eventStream$.subscribe(event => {
             if (event.eventType === 'uiResize') {
                 this.changeUIsIZE();
             }

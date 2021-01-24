@@ -23,7 +23,7 @@ export class SlideEditor extends BaseComponent implements ComponentDidMount {
     componentDidMount(): void {
         this.slideElement = this.query('.slide-editor');
         this.changeUIsIZE();
-        this.workspace.eventStream.subscribe(event => {
+        this.workspace.eventStream$.subscribe(event => {
             if (event.eventType === 'uiResize') {
                 this.changeUIsIZE();
             }
@@ -45,13 +45,13 @@ export class SlideEditor extends BaseComponent implements ComponentDidMount {
         this.areaSelector = new AreaSelector(this.workspace);
 
         this.areaSelector.onDrawStart$.subscribe(() => {
-            this.workspace.eventStream.next({
+            this.workspace.eventStream$.next({
                 eventType: 'cursorChange',
                 data: 'crosshair'
             });
         });
         this.areaSelector.onDrawComplete$.subscribe((result) => {
-            this.workspace.eventStream.next({
+            this.workspace.eventStream$.next({
                 eventType: 'cursorChange',
                 data: 'default'
             });

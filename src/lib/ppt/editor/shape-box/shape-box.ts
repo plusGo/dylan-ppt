@@ -7,12 +7,19 @@ import {NumberUtil} from '../../../util/number.util';
 import {BaseComponent, ComponentDidMount, ComponentWillMount} from '../../base/base-component';
 import {SelectedRects} from './selected-rects/selected-rects';
 
-export interface ShapeBoxUpdateOption {
+export interface ShapeBoxPositionOption {
     left: number;
     top: number;
     width: number;
     height: number;
     transform: string;
+}
+
+interface LastPositionRatio {
+    widthRatio: number;
+    heightRatio: number;
+    leftRatio: number;
+    topRatio: number;
 }
 
 const template = `
@@ -28,10 +35,10 @@ export class ShapeBox extends BaseComponent implements ComponentDidMount, Compon
     shapeBoxElement: HTMLDivElement;
     selectorBoxElement: HTMLDivElement;
     circleBoxComponent: CircleBox;
-
     selectedRects: SelectedRects;
+    lastPositionRatio: LastPositionRatio;
 
-    constructor(private workspace: EditWorkspace, private initBoxOption: ShapeBoxUpdateOption) {
+    constructor(private workspace: EditWorkspace, private positionOption: ShapeBoxPositionOption) {
         super(template, workspace.slideEditor.slideElement);
     }
 
@@ -41,12 +48,26 @@ export class ShapeBox extends BaseComponent implements ComponentDidMount, Compon
     }
 
     componentDidMount(): void {
-        this.update(this.initBoxOption);
+        this.update(this.positionOption);
         this.initCircleBox();
         this.selectedRects = new SelectedRects(this);
+
+        this.workspace.eventStream$.subscribe(event => {
+            if (event.eventType === 'uiResize') {
+                const width = this.workspace.uilContentElement.clientWidth - 40;
+                const height = width / this.workspace.workspaceConfig.widthHeightRatio;
+                this.update({
+                    width: width * this.lastPositionRatio.widthRatio,
+                    height: height * this.lastPositionRatio.heightRatio,
+                    left: width * this.lastPositionRatio.leftRatio,
+                    top: height * this.lastPositionRatio.topRatio,
+                } as any)
+            }
+        })
     }
 
-    update(option: ShapeBoxUpdateOption): ShapeBox {
+    update(option: ShapeBoxPositionOption): ShapeBox {
+        this.positionOption = option;
         DomUtil.addStyleMap(this.shapeBoxElement, {
             left: CssUtil.coercePixelValue(option.left),
             top: CssUtil.coercePixelValue(option.top),
@@ -54,6 +75,15 @@ export class ShapeBox extends BaseComponent implements ComponentDidMount, Compon
             height: CssUtil.coercePixelValue(option.height),
             transform: option.transform
         });
+
+        const width = this.workspace.uilContentElement.clientWidth - 40;
+        const height = width / this.workspace.workspaceConfig.widthHeightRatio;
+        this.lastPositionRatio = {
+            widthRatio: option.width / width,
+            heightRatio: option.height / height,
+            leftRatio: option.left / width,
+            topRatio: option.top / height,
+        };
         return this;
     }
 

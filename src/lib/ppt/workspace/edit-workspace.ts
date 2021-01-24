@@ -27,7 +27,7 @@ export class EditWorkspace extends BaseComponent implements Workspace, Component
     /**
      * 事件总线
      */
-    eventStream: Subject<BaseEvent, void> = new Subject<BaseEvent, void>();
+    eventStream$: Subject<BaseEvent, void> = new Subject<BaseEvent, void>();
 
     /**
      * 工作区静态配置
@@ -45,7 +45,7 @@ export class EditWorkspace extends BaseComponent implements Workspace, Component
         }
 
 
-        this.eventStream.subscribe((event) => {
+        this.eventStream$.subscribe((event) => {
             if (event.eventType === 'cursorChange') {
                 DomUtil.addStyleMap(document.body, {cursor: event.data});
             }
@@ -83,7 +83,7 @@ export class EditWorkspace extends BaseComponent implements Workspace, Component
 
     private listenDocResize() {
         window.onresize = () => {
-            this.eventStream.next({
+            this.eventStream$.next({
                 eventType: 'uiResize',
                 data: this.uilContentElement.clientWidth
             });

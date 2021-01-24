@@ -52,7 +52,7 @@ export class AreaSelector {
     }
 
     init(): void {
-        this.editWorkspace.eventStream.subscribe(event => {
+        this.editWorkspace.eventStream$.subscribe(event => {
             if (event.eventType === 'uiResize') {
                 const [offsetX, offsetY] = DomUtil.getViewOffsetXY(this.slideElement);
                 this.hostOffsetX = offsetX;
