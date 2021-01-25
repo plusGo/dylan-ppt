@@ -16,5 +16,6 @@
 # inspired by 
 - https://github.com/won21kr/js-pptx
 - https://github.com/SheetJS/sheetjs
+- https://github.com/Ziv-Barber/officegen
 - https://github.com/gitbrent/PptxGenJS
 
