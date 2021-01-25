@@ -13,3 +13,8 @@
 ## svg作为slide实现编辑
 ## 渲染区与编辑区互相如何绑定
 
+# inspired by 
+- https://github.com/won21kr/js-pptx
+- https://github.com/SheetJS/sheetjs
+- https://gitbrent.github.io/PptxGenJS/
+

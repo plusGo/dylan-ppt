@@ -1,6 +1,6 @@
 import {DomUtil} from '../../util/domUtil';
 import {Workspace} from '../../interface/ppt-workspace.interface';
-import {SvgRender} from '../render/svg-render';
+import {SvgRender} from '../render/svg-render/svg-render';
 import './edit-workspace.scss';
 import {SlideEditor} from '../editor/slide-editor/slide-editor';
 import {Subject} from '../../obervable/observable';
