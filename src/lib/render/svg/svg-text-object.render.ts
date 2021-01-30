@@ -126,6 +126,6 @@ export class SvgTextObjectRender {
         return `<path fill="${this?.slideObjectSchema?.options?.fill?.color}" 
          stroke="none"
          paint-order="stroke fill markers" 
-         fill-rule="evenodd" d=" M 0 0 L 768 0 L 768 192 L 0 192 Z"></path>`
+         fill-rule="evenodd" d=" M 0 0 L ${this?.slideObjectSchema?.options?.w} 0 L ${this?.slideObjectSchema?.options?.w} ${this?.slideObjectSchema?.options?.h} L 0 ${this?.slideObjectSchema?.options?.h} Z"></path>`
     }
 }
