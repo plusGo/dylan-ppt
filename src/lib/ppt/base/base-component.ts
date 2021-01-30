@@ -58,19 +58,19 @@ export abstract class BaseComponent {
     init(): void {
         new Promise((resolve) => resolve(null)).then(() => {
             this.componentFragment = DomUtil.createFragmentByTemplate(this.template);
-
-            if (this.host) {
-                if ((this as any).componentWillMount) {
-                    (this as any).componentWillMount();
-                }
-
-                this.mount();
-            }
+            this.mount();
         })
     };
 
-    mount(): void {
-        this.host.append(this.componentFragment);
+    mount(host: Element = this.host): void {
+        if (host) {
+            if ((this as any).componentWillMount) {
+                (this as any).componentWillMount();
+            }
+        } else {
+            return;
+        }
+        host.append(this.componentFragment);
         if ((this as any).componentDidMount) {
             (this as any).componentDidMount();
         }
