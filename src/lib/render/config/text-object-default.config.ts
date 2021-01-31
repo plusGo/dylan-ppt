@@ -1,3 +1,3 @@
 export const TEXT_OBJECT_DEFAULT_CONFIG = {
-    fontSize: 24,
+    fontSize: 18,
 };
