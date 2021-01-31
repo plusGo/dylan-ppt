@@ -8,14 +8,13 @@ import {TEXT_OBJECT_DEFAULT_CONFIG} from '../config/text-object-default.config';
 
 const getTemplate = (component: SvgTextObjectRender) => {
     return `
-<g id="${component.id}" transform="translate(0, 0)">
-    <g id="${component.id}_geomerty">
-        <g transform="matrix(1, 0, 0, 1, ${component.slideObjectSchema?.options?.x || 0}, ${component?.slideObjectSchema?.options?.y || 0}) matrix(1, 0, 0, 1, 0, 0)">
-             ${component.getGeomertyTemplate()}
+<g id="${component.elementId}" transform="translate(0, 0)">
+    <g id="${component.elementId}_geomerty">
+        <g transform="">
         </g>
     </g>
-    <g id="${component.id}_text">
-        <g transform="${component.getInitPositionTransform()}">
+    <g id="${component.elementId}_text">
+        <g transform="">
             <g id="text-wrapper" transform="translate(9.6, 5)" style="" class="">
                
             </g>
@@ -28,36 +27,54 @@ const getTemplate = (component: SvgTextObjectRender) => {
 
 export class SvgTextObjectRender {
     private textParagraphCounter: number = 0;
-    id: string;
+    elementId: string;
 
     textProps: TextPropsSchema[];
-    documentFragment: DocumentFragment;
+
+    private rootGElement: SVGGraphicsElement;
+    private textGElement: SVGGraphicsElement;
+    private geomertyGElement: SVGGraphicsElement;
 
     constructor(public slideObjectSchema: SlideObjectSchema, public svgSlideRender: SvgSlideRender) {
-        this.id = `slide_text_${svgSlideRender.config.textObjectCounter}`;
+        // 初始化全局唯一ID
+        this.elementId = `slide_text_${svgSlideRender.config.textObjectCounter}`;
         svgSlideRender.config.textObjectCounter++;
         this.textProps = slideObjectSchema.text || [];
     }
 
-    render(host: Element): void {
-        this.documentFragment = SvgUtil.createFragmentByTemplate(getTemplate(this));
-
+    /**
+     * 组件挂载前
+     */
+    private componentWillMount() {
+        this.renderGeomertyGraphics();
         this.renderTextContent();
-
-        host.append(this.documentFragment);
     }
 
     /**
-     * 获得text object相对画布的偏移量
+     * 挂载到目标节点
      */
-    getInitPositionTransform(): string {
-        let coordX = CoordUtils.transformToPt(this.slideObjectSchema.options.x, this.svgSlideRender.config.width);
-        let coordY = CoordUtils.transformToPt(this.slideObjectSchema.options.y, this.svgSlideRender.config.height);
-        let shapeWidth = CoordUtils.transformToPt(this.slideObjectSchema.options.w, this.svgSlideRender.config.width);
-        let shapeHeight = CoordUtils.transformToPt(this.slideObjectSchema.options.h, this.svgSlideRender.config.height);
-        return `translate(${coordX + shapeWidth / 2}, ${coordY + shapeHeight / 2}) translate(-${shapeWidth / 2}, -${shapeHeight / 2})`;
+    render(host: Element): void {
+        const documentFragment = SvgUtil.createFragmentByTemplate(getTemplate(this));
+        this.rootGElement = documentFragment.querySelector(`#${this.elementId}`);
+        this.geomertyGElement = documentFragment.querySelector(`#${this.elementId}_geomerty`);
+        this.textGElement = documentFragment.querySelector(`#${this.elementId}_text`);
+
+        this.componentWillMount();
+        host.append(documentFragment);
+        this.componentDidMount();
     }
 
+    /**
+     * 组件挂载后
+     */
+    private componentDidMount() {
+        this.renderTextGraphics();
+    }
+
+
+    /**
+     * 渲染文本内容
+     */
     renderTextContent(): void {
         const documentFragment = document.createDocumentFragment();
 
@@ -107,8 +124,7 @@ export class SvgTextObjectRender {
             textLineYOffset = textLineYOffset + maxLineHeight;
         });
 
-        this.documentFragment.querySelector('#text-wrapper').append(documentFragment);
-
+        this.rootGElement.querySelector('#text-wrapper').append(documentFragment);
     }
 
     private generateParagraphElements(): SVGElement[] {
@@ -129,10 +145,81 @@ export class SvgTextObjectRender {
         return [textParagraphElement, textLineElement, textElement]
     }
 
-    getGeomertyTemplate() {
-        return `<path fill="${this?.slideObjectSchema?.options?.fill?.color}" 
-         stroke="none"
-         paint-order="stroke fill markers" 
-         fill-rule="evenodd" d=" M 0 0 L ${this?.slideObjectSchema?.options?.w} 0 L ${this?.slideObjectSchema?.options?.w} ${this?.slideObjectSchema?.options?.h} L 0 ${this?.slideObjectSchema?.options?.h} Z"></path>`
+
+    /**
+     * 判断当前的textObject是否需要渲染几何图形
+     */
+    private shouldRenderGeomertyGraphic(): boolean {
+        return !!this.slideObjectSchema.options.w && !!this.slideObjectSchema.options.h;
     }
+
+    /**
+     * 渲染几何容器
+     */
+    private renderGeomertyGraphics() {
+        const graphicsElement = this.geomertyGElement.children[0];
+
+        // Step1:初始化几何的坐标属性
+        let matrixX = CoordUtils.transformToPt(this.slideObjectSchema?.options?.x, this.svgSlideRender.config.width);
+        let matrixY = CoordUtils.transformToPt(this.slideObjectSchema?.options?.y, this.svgSlideRender.config.height);
+        const transformAttr = `matrix(1, 0, 0, 1, ${matrixX}, ${matrixY}) matrix(1, 0, 0, 1, 0, 0)`;
+        SvgUtil.resetAttr(graphicsElement, {'transform': transformAttr});
+
+        // Step2:初始化几何的图形
+        if (this.shouldRenderGeomertyGraphic()) {
+            const pathElement = SvgUtil.createElement('path');
+            const attrs: { [key: string]: string } = {};
+            if (this.slideObjectSchema.options?.fill?.color) {
+                attrs.fill = this.slideObjectSchema.options?.fill?.color;
+            }
+            attrs['paint-order'] = 'stroke fill makers';
+            attrs['fill-rule'] = 'evenodd';
+
+            const width = CoordUtils.transformToPt(this?.slideObjectSchema?.options?.w, this.svgSlideRender.config.width);
+            const height = CoordUtils.transformToPt(this?.slideObjectSchema?.options?.h, this.svgSlideRender.config.height);
+            attrs['d'] = ` M 0 0 L ${width} 0 L ${width} ${height} L 0 ${height} Z`;
+
+            SvgUtil.resetAttr(pathElement, attrs);
+            SvgUtil.appendTo(graphicsElement, pathElement);
+        }
+    }
+
+
+    /**
+     * 渲染文字容器，必须在挂载到DOM树后执行，因为挂载后，才能获取到图形的高宽
+     */
+    private renderTextGraphics() {
+        // step1: 渲染文本容器的坐标属性
+        const rootBbox = this.rootGElement.getBBox();
+
+        // step1.1: 获取文字容器的宽高，便于后续编辑。若有几何图形，则以几何图形为准；若无几何图形，则以整个根容器为准
+        const textGraphicAttr: { [key: string]: number } = {};
+        if (this.shouldRenderGeomertyGraphic()) {
+            textGraphicAttr.width = CoordUtils.transformToPt(this?.slideObjectSchema?.options?.w, this.svgSlideRender.config.width);
+            textGraphicAttr.height = CoordUtils.transformToPt(this?.slideObjectSchema?.options?.h, this.svgSlideRender.config.height);
+        } else {
+            textGraphicAttr.width = rootBbox.width;
+            textGraphicAttr.height = rootBbox.height;
+        }
+
+        // step1.2：绑定属性
+        const graphicsElement = this.textGElement.children[0];
+
+        const coordX = CoordUtils.transformToPt(this.slideObjectSchema.options.x, this.svgSlideRender.config.width);
+        const coordY = CoordUtils.transformToPt(this.slideObjectSchema.options.y, this.svgSlideRender.config.height);
+
+
+        const translateX = coordX + textGraphicAttr.width / 2;
+        const translatesY = coordY + textGraphicAttr.height / 2;
+        const transformAttr = `translate(${translateX}, ${translatesY}) translate(-${textGraphicAttr.width / 2}, -${textGraphicAttr.height / 2})`;
+        SvgUtil.resetAttr(graphicsElement, {'transform': transformAttr});
+
+        // step2: 计算textWrapper的x和y的偏移量
+        const textWrapperElement = this.textGElement.querySelector<SVGGraphicsElement>('#text-wrapper');
+        let textWrapperX = 9.6;
+        let textWrapperY = (textGraphicAttr.height - textWrapperElement.getBBox().height) / 2 - 7;
+        SvgUtil.resetAttr(textWrapperElement, {transform: `translate(${textWrapperX},${textWrapperY})`});
+    }
+
+
 }

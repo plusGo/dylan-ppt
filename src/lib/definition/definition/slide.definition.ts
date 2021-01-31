@@ -34,7 +34,7 @@ export class SlideDefinition implements SlideSchema {
 
     addText(text: string | TextPropsSchema[], options?: TextPropsOptionsSchema): SlideDefinition {
         if (typeof text === 'string') {
-            text = [{text: text}]
+            text = [{text: text, options: {}}]
         }
         TextDefinitionUtil.addTextDefinition(this, text, options);
         return this;

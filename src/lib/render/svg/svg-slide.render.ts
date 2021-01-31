@@ -38,7 +38,7 @@ const getTemplate = (component: SvgSlideRender) => {
 
 export class SvgSlideRender extends BaseComponent implements ComponentDidMount, SlideRender {
     svgElement: SVGElement;
-    config: SvgSlideConfig = {width: 1280, height: 720, textObjectCounter: 0};
+    config: SvgSlideConfig = {width: 960, height: 540, textObjectCounter: 0};
 
     constructor(host: HTMLElement) {
         super('', host);

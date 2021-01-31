@@ -1,3 +1,5 @@
+import {DomUtil} from './domUtil';
+
 export class SvgUtil {
 
 
@@ -17,7 +19,7 @@ export class SvgUtil {
     /**
      * @description 修改SVG类元素的属性
      */
-    static resetAttr(element: SVGElement, attrs: { [key: string]: any }): SVGElement {
+    static resetAttr(element: Element, attrs: { [key: string]: any }): Element {
 
         Object.keys(attrs).forEach($key => {
             element.setAttribute($key, attrs[$key])
@@ -37,6 +39,13 @@ export class SvgUtil {
             documentFragment.append(templeElement.children[i]);
         }
         return documentFragment;
+    }
+
+    /**
+     * 从尾部增加子节点
+     */
+    static appendTo(parent: Element, ...children: Element[]) {
+        DomUtil.appendTo(parent, ...children);
     }
 
 }

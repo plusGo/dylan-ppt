@@ -12,6 +12,6 @@ export class CoordUtils {
         if (typeof coord === 'number') {
             return coord;
         }
-        return parseInt(coord) * size;
+        return parseInt(coord) / 100 * size;
     }
 }

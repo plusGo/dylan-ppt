@@ -18,15 +18,16 @@ const textObjs: TextPropsSchema[] = [
     {text: "3rd line", options: {fontSize: 48, color: "0088CC"}},
 ];
 
-slideDefinition.addText(textObjs, {x: 128 / 2, y: 128 * 4, w: 128 * 8, h: 128 * 2, fill: {color: "232323"}});
+slideDefinition.addText(textObjs, {x: 96 / 2, y: 96 * 4, w: 96 * 8, h: 96 * 2, fill: {color: "232323"}});
 
 let arrTextObjs1 = [
     {text: "1st line", options: {fontSize: 24, color: "99ABCC", breakLine: true}},
     {text: "2nd line", options: {fontSize: 36, color: "FFFF00", breakLine: true}},
     {text: "3rd line", options: {fontSize: 48, color: "0088CC"}},
 ];
-slideDefinition.addText (arrTextObjs1, {x: 128 * 0.5, y: 128, w: 128 * 8, h: 128 * 2, fill: {color: "232323"}});
+slideDefinition.addText (arrTextObjs1, {x: 96 * 0.5, y: 96, w: 96 * 8, h: 96 * 2, fill: {color: "232323"}});
 
+slideDefinition.addText("^ (50%/50%)", { x: "50%", y: "50%" });
 
 // slideDefinition.addText([
 //     {text: '1211111111111111111111111111111111111111111111', options: {x: 300, y: 200, w: 100}},
